@@ -123,12 +123,29 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 exports.Prisma.MedicineScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  dosageForm: 'dosageForm',
-  spec: 'spec',
   price: 'price',
-  inventory: 'inventory',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  stock: 'stock'
+};
+
+exports.Prisma.InventoryCheckScalarFieldEnum = {
+  id: 'id',
+  medicineId: 'medicineId',
+  checkedStock: 'checkedStock',
+  checkDate: 'checkDate'
+};
+
+exports.Prisma.InboundRecordScalarFieldEnum = {
+  id: 'id',
+  medicineId: 'medicineId',
+  quantity: 'quantity',
+  inboundDate: 'inboundDate'
+};
+
+exports.Prisma.OutboundRecordScalarFieldEnum = {
+  id: 'id',
+  medicineId: 'medicineId',
+  quantity: 'quantity',
+  outboundDate: 'outboundDate'
 };
 
 exports.Prisma.SortOrder = {
@@ -136,20 +153,16 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
-exports.Prisma.NullsOrder = {
-  first: 'first',
-  last: 'last'
-};
-
 exports.Prisma.MedicineOrderByRelevanceFieldEnum = {
-  name: 'name',
-  dosageForm: 'dosageForm',
-  spec: 'spec'
+  name: 'name'
 };
 
 
 exports.Prisma.ModelName = {
-  Medicine: 'Medicine'
+  Medicine: 'Medicine',
+  InventoryCheck: 'InventoryCheck',
+  InboundRecord: 'InboundRecord',
+  OutboundRecord: 'OutboundRecord'
 };
 
 /**

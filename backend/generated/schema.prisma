@@ -10,10 +10,10 @@ generator client {
 }
 
 model Medicine {
-  id           Int      @id @default(autoincrement())
-  name         String
-  price        Float
-  stock        Int
+  id              Int              @id @default(autoincrement())
+  name            String
+  price           Float
+  stock           Int
   // 其他药品信息字段
   inventoryChecks InventoryCheck[]
   inboundRecords  InboundRecord[]
@@ -29,11 +29,11 @@ model InventoryCheck {
 }
 
 model InboundRecord {
-  id           Int      @id @default(autoincrement())
-  medicine     Medicine @relation(fields: [medicineId], references: [id])
-  medicineId   Int
-  quantity     Int
-  inboundDate  DateTime @default(now())
+  id          Int      @id @default(autoincrement())
+  medicine    Medicine @relation(fields: [medicineId], references: [id])
+  medicineId  Int
+  quantity    Int
+  inboundDate DateTime @default(now())
 }
 
 model OutboundRecord {
