@@ -1,7 +1,5 @@
 <template>
   <div>
-    <h1>处方管理</h1>
-
     <!-- 处方表格 -->
     <el-table :data="prescriptions" stripe style="width: 100%">
       <el-table-column prop="id" label="处方ID" />

@@ -1,7 +1,6 @@
 <!-- src/views/ReportView.vue -->
 <template>
   <div>
-    <h1>业务相关数据查询报表</h1>
     <!-- 搜索框 -->
     <el-input v-model="searchKey" placeholder="请输入药品名称" clearable @keyup.enter="searchReport">
       <template #append>

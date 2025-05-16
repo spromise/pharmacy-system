@@ -93,3 +93,19 @@ export const completePrescription = async (id: number) => {
 export const cancelPrescription = async (id: number) => {
   return request.post(`/prescriptions/${id}/cancel`);
 };
+
+export const updatePrescriptionStatus = (id: number, status: string) => {
+  return request({
+    url: `/prescriptions/${id}/status`,
+    method: 'put',
+    data: { status }
+  });
+};
+
+export const createOutboundRecordFromPrescription = (prescriptionId: number) => {
+  // 假设该接口根据处方明细自动生成出库记录
+  return request({
+    url: `/prescriptions/${prescriptionId}/generate-outbound`,
+    method: 'post'
+  });
+};

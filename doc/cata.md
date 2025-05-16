@@ -8,8 +8,8 @@ pharmacy-system/
 │   │   │   ├── prescription.ts
 │   │   │   └── report.ts
 │   │   ├── assets/            # 静态资源
-│   │   ├── components/        # 通用组件
-│   │   │   └── MedicineTable.vue
+│   │   ├── layout/            # 布局
+│   │   │   └── Layout.vue
 │   │   ├── router/            # 路由配置
 │   │   │   └── index.ts
 │   │   ├── stores/            # Pinia状态管理（TS）

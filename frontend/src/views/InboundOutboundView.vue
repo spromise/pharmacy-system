@@ -1,8 +1,6 @@
 <template>
   <div>
-    <h1>药品出入库管理</h1>
-
-    <!-- 入库表单 -->
+   <!-- 入库表单 -->
     <el-card class="box-card">
       <template #header>
         <span>药品入库</span>

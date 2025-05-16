@@ -52,3 +52,17 @@ export const getInboundOutboundRecords = async (params: QueryParams) => {
 export const createInboundOutboundRecord = async (data: any) => {
   return request.post('/inbound-outbound-records', data);
 };
+
+export const createOutboundRecord = (data: {
+  standardCode: string;
+  batchNumber: string;
+  quantity: number;
+  outboundType: 'prescription' | 'loss';
+  prescriptionId?: number; // 仅处方出库需要
+}) => {
+  return request({
+    url: '/outbound-records',
+    method: 'post',
+    data
+  });
+};
