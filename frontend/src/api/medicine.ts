@@ -1,4 +1,3 @@
-// src/api/medicine.ts
 import request from '@/utils/request';
 
 // 获取药品列表
@@ -23,4 +22,9 @@ export const updateMedicine = async (id: number, data: any) => {
 // 删除药品
 export const deleteMedicine = async (id: number) => {
   return request.delete(`/medicines/${id}`);
+};
+
+// 获取药品调价历史
+export const getMedicinePriceHistory = async (medicineId: number) => {
+  return request.get(`/medicines/${medicineId}/price-history`);
 };

@@ -35,12 +35,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.7.0
- * Query Engine version: 3cff47a7f5d65c3ea74883f1d736e41d68ce91ed
+ * Prisma Client JS version: 6.8.1
+ * Query Engine version: 2060c79ba17c6bb9f5823312b6f6b7f4a845738e
  */
 Prisma.prismaVersion = {
-  client: "6.7.0",
-  engine: "3cff47a7f5d65c3ea74883f1d736e41d68ce91ed"
+  client: "6.8.1",
+  engine: "2060c79ba17c6bb9f5823312b6f6b7f4a845738e"
 }
 
 Prisma.PrismaClientKnownRequestError = PrismaClientKnownRequestError;
@@ -93,32 +93,88 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.MedicineScalarFieldEnum = {
-  id: 'id',
+exports.Prisma.PatientScalarFieldEnum = {
+  visit_id: 'visit_id',
   name: 'name',
-  price: 'price',
-  stock: 'stock'
+  gender: 'gender',
+  contact: 'contact',
+  first_visit_date: 'first_visit_date',
+  medical_history: 'medical_history'
 };
 
-exports.Prisma.InventoryCheckScalarFieldEnum = {
-  id: 'id',
-  medicineId: 'medicineId',
-  checkedStock: 'checkedStock',
-  checkDate: 'checkDate'
+exports.Prisma.DoctorScalarFieldEnum = {
+  doctor_id: 'doctor_id',
+  name: 'name',
+  department: 'department'
 };
 
-exports.Prisma.InboundRecordScalarFieldEnum = {
-  id: 'id',
-  medicineId: 'medicineId',
+exports.Prisma.PrescriptionScalarFieldEnum = {
+  prescription_id: 'prescription_id',
+  patient_visit_id: 'patient_visit_id',
+  doctor_id: 'doctor_id',
+  create_time: 'create_time',
+  status: 'status',
+  diagnosis: 'diagnosis',
+  remarks: 'remarks',
+  total_amount: 'total_amount'
+};
+
+exports.Prisma.PrescriptionDetailScalarFieldEnum = {
+  prescription_id: 'prescription_id',
+  drug_code: 'drug_code',
+  drug_name: 'drug_name',
+  unit_price: 'unit_price',
   quantity: 'quantity',
-  inboundDate: 'inboundDate'
+  usage_instruction: 'usage_instruction'
 };
 
-exports.Prisma.OutboundRecordScalarFieldEnum = {
-  id: 'id',
-  medicineId: 'medicineId',
+exports.Prisma.DrugScalarFieldEnum = {
+  drug_code: 'drug_code',
+  generic_name: 'generic_name',
+  brand_name: 'brand_name',
+  dosage_form: 'dosage_form',
+  specification: 'specification',
+  manufacturer: 'manufacturer',
+  unit_price: 'unit_price'
+};
+
+exports.Prisma.InventoryScalarFieldEnum = {
+  inventory_id: 'inventory_id',
+  drug_code: 'drug_code',
+  batch_number: 'batch_number',
+  stock_quantity: 'stock_quantity',
+  expiration_date: 'expiration_date',
+  alert_threshold: 'alert_threshold',
+  last_inbound_time: 'last_inbound_time',
+  last_outbound_time: 'last_outbound_time'
+};
+
+exports.Prisma.InboundScalarFieldEnum = {
+  inbound_id: 'inbound_id',
+  drug_code: 'drug_code',
+  batch_number: 'batch_number',
   quantity: 'quantity',
-  outboundDate: 'outboundDate'
+  inbound_time: 'inbound_time',
+  operator_id: 'operator_id'
+};
+
+exports.Prisma.OutboundScalarFieldEnum = {
+  outbound_id: 'outbound_id',
+  drug_code: 'drug_code',
+  batch_number: 'batch_number',
+  quantity: 'quantity',
+  prescription_id: 'prescription_id',
+  outbound_type: 'outbound_type',
+  outbound_time: 'outbound_time'
+};
+
+exports.Prisma.PriceHistoryScalarFieldEnum = {
+  price_id: 'price_id',
+  drug_code: 'drug_code',
+  old_price: 'old_price',
+  new_price: 'new_price',
+  effective_date: 'effective_date',
+  operator_id: 'operator_id'
 };
 
 exports.Prisma.SortOrder = {
@@ -126,16 +182,84 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
-exports.Prisma.MedicineOrderByRelevanceFieldEnum = {
-  name: 'name'
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
 };
 
+exports.Prisma.PatientOrderByRelevanceFieldEnum = {
+  visit_id: 'visit_id',
+  name: 'name',
+  contact: 'contact',
+  medical_history: 'medical_history'
+};
+
+exports.Prisma.DoctorOrderByRelevanceFieldEnum = {
+  name: 'name',
+  department: 'department'
+};
+
+exports.Prisma.PrescriptionOrderByRelevanceFieldEnum = {
+  patient_visit_id: 'patient_visit_id',
+  diagnosis: 'diagnosis',
+  remarks: 'remarks'
+};
+
+exports.Prisma.PrescriptionDetailOrderByRelevanceFieldEnum = {
+  drug_code: 'drug_code',
+  drug_name: 'drug_name',
+  usage_instruction: 'usage_instruction'
+};
+
+exports.Prisma.DrugOrderByRelevanceFieldEnum = {
+  drug_code: 'drug_code',
+  generic_name: 'generic_name',
+  brand_name: 'brand_name',
+  dosage_form: 'dosage_form',
+  specification: 'specification',
+  manufacturer: 'manufacturer'
+};
+
+exports.Prisma.InventoryOrderByRelevanceFieldEnum = {
+  drug_code: 'drug_code',
+  batch_number: 'batch_number'
+};
+
+exports.Prisma.InboundOrderByRelevanceFieldEnum = {
+  drug_code: 'drug_code',
+  batch_number: 'batch_number'
+};
+
+exports.Prisma.OutboundOrderByRelevanceFieldEnum = {
+  drug_code: 'drug_code',
+  batch_number: 'batch_number',
+  outbound_type: 'outbound_type'
+};
+
+exports.Prisma.PriceHistoryOrderByRelevanceFieldEnum = {
+  drug_code: 'drug_code'
+};
+exports.Gender = exports.$Enums.Gender = {
+  男: '男',
+  女: '女'
+};
+
+exports.PrescriptionStatus = exports.$Enums.PrescriptionStatus = {
+  有效: '有效',
+  已作废: '已作废',
+  已审核: '已审核'
+};
 
 exports.Prisma.ModelName = {
-  Medicine: 'Medicine',
-  InventoryCheck: 'InventoryCheck',
-  InboundRecord: 'InboundRecord',
-  OutboundRecord: 'OutboundRecord'
+  Patient: 'Patient',
+  Doctor: 'Doctor',
+  Prescription: 'Prescription',
+  PrescriptionDetail: 'PrescriptionDetail',
+  Drug: 'Drug',
+  Inventory: 'Inventory',
+  Inbound: 'Inbound',
+  Outbound: 'Outbound',
+  PriceHistory: 'PriceHistory'
 };
 /**
  * Create the Client
@@ -170,22 +294,23 @@ const config = {
     "schemaEnvPath": "../.env"
   },
   "relativePath": "../prisma",
-  "clientVersion": "6.7.0",
-  "engineVersion": "3cff47a7f5d65c3ea74883f1d736e41d68ce91ed",
+  "clientVersion": "6.8.1",
+  "engineVersion": "2060c79ba17c6bb9f5823312b6f6b7f4a845738e",
   "datasourceNames": [
     "db"
   ],
   "activeProvider": "mysql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL",
-        "value": "mysql://root:123456@localhost:3306/pharmacy_system"
+        "value": null
       }
     }
   },
-  "inlineSchema": "// prisma/schema.prisma\ndatasource db {\n  provider = \"mysql\"\n  url      = env(\"DATABASE_URL\")\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated\"\n}\n\nmodel Medicine {\n  id              Int              @id @default(autoincrement())\n  name            String\n  price           Float\n  stock           Int\n  // 其他药品信息字段\n  inventoryChecks InventoryCheck[]\n  inboundRecords  InboundRecord[]\n  outboundRecords OutboundRecord[]\n}\n\nmodel InventoryCheck {\n  id           Int      @id @default(autoincrement())\n  medicine     Medicine @relation(fields: [medicineId], references: [id])\n  medicineId   Int\n  checkedStock Int\n  checkDate    DateTime @default(now())\n}\n\nmodel InboundRecord {\n  id          Int      @id @default(autoincrement())\n  medicine    Medicine @relation(fields: [medicineId], references: [id])\n  medicineId  Int\n  quantity    Int\n  inboundDate DateTime @default(now())\n}\n\nmodel OutboundRecord {\n  id           Int      @id @default(autoincrement())\n  medicine     Medicine @relation(fields: [medicineId], references: [id])\n  medicineId   Int\n  quantity     Int\n  outboundDate DateTime @default(now())\n}\n",
-  "inlineSchemaHash": "ef9926cca77ab8bf077d995a41a1e76d2cf972157501daf940eba99a62634bf4",
+  "inlineSchema": "// prisma/schema.prisma\ndatasource db {\n  provider = \"mysql\"\n  url      = env(\"DATABASE_URL\")\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated\"\n}\n\n// ---------------------------\n// 患者信息表\n// ---------------------------\nmodel Patient {\n  visit_id         String   @id @db.VarChar(12) // 就诊流水号（格式：YYYYMMDD0001）\n  name             String   @db.VarChar(100) // 患者姓名\n  gender           Gender // 性别\n  contact          String?  @db.VarChar(50) // 联系方式\n  first_visit_date DateTime // 首次就诊日期\n  medical_history  String?  @db.Text // 既往病史\n\n  // 关联处方\n  prescriptions Prescription[]\n\n  @@map(\"patients\")\n}\n\nenum Gender {\n  男\n  女\n}\n\n// ---------------------------\n// 医生信息表\n// ---------------------------\nmodel Doctor {\n  doctor_id  Int    @id @default(autoincrement()) // 医生ID（自增主键）\n  name       String @db.VarChar(10) // 医生姓名\n  department String @db.VarChar(20) // 所属科室（如内科、外科）\n\n  // 关联处方\n  prescriptions Prescription[]\n\n  @@map(\"doctors\")\n}\n\n// ---------------------------\n// 处方表（核心医疗文书）\n// ---------------------------\nmodel Prescription {\n  prescription_id     Int                  @id @default(autoincrement()) // 处方ID（自增主键）\n  patient_visit_id    String // 关联患者就诊流水号\n  doctor_id           Int // 开方医生ID\n  create_time         DateTime             @default(now()) // 处方开具时间\n  status              PrescriptionStatus   @default(有效) // 状态（有效/已作废/已审核）\n  diagnosis           String?              @db.VarChar(500) // 临床诊断，增加长度\n  remarks             String?              @db.Text // 医嘱备注\n  total_amount        Float                @default(0.0) // 处方总金额（快照）\n  // 外键关联\n  patient             Patient              @relation(fields: [patient_visit_id], references: [visit_id], onDelete: Restrict, onUpdate: Cascade)\n  doctor              Doctor               @relation(fields: [doctor_id], references: [doctor_id], onDelete: Restrict, onUpdate: Cascade)\n  prescriptionDetails PrescriptionDetail[] // 处方明细\n  outbounds           Outbound[]\n\n  @@index([patient_visit_id]) // 添加索引\n  @@index([doctor_id]) // 添加索引\n  @@map(\"prescriptions\")\n}\n\nenum PrescriptionStatus {\n  有效\n  已作废\n  已审核\n}\n\n// ---------------------------\n// 处方明细表（药品与处方关联）\n// ---------------------------\nmodel PrescriptionDetail {\n  prescription_id   Int // 处方ID\n  drug_code         String // 药品本位码\n  drug_name         String       @db.VarChar(100) // 冗余存储药品名称（快照）\n  unit_price        Float // 药品单价（价格快照）\n  quantity          Int          @default(1) // 数量（如2盒/30片）\n  usage_instruction String       @db.VarChar(200) // 用法用量（如“每日3次，每次1片”）\n  prescription      Prescription @relation(fields: [prescription_id], references: [prescription_id], onDelete: Cascade, onUpdate: Cascade)\n  drug              Drug         @relation(fields: [drug_code], references: [drug_code], onDelete: Restrict, onUpdate: Cascade)\n\n  // 复合主键与关联\n  @@id([prescription_id, drug_code])\n  @@map(\"prescription_details\")\n}\n\n// ---------------------------\n// 药品核心信息表\n// ---------------------------\nmodel Drug {\n  drug_code     String  @id @db.Char(14) // 药品本位码（国家统一编码）\n  generic_name  String  @db.VarChar(100) // 药品通用名称（如“阿莫西林”）\n  brand_name    String? @unique @db.VarChar(100) // 商品名（唯一，如“信立克”）\n  dosage_form   String  @db.VarChar(50) // 剂型（用户自由输入，如“胶囊剂”）\n  specification String? @db.VarChar(500) // 规格（复合成分用*分隔）\n  manufacturer  String? @db.VarChar(100) // 生产厂家\n  unit_price    Float? // 当前售价，改为可选字段\n\n  // 关联表\n  inventories         Inventory[]\n  inbounds            Inbound[]\n  outbounds           Outbound[]\n  priceHistories      PriceHistory[]\n  prescriptionDetails PrescriptionDetail[]\n}\n\n// ---------------------------\n// 库存管理表\n// ---------------------------\nmodel Inventory {\n  inventory_id       Int       @id @default(autoincrement())\n  drug_code          String    @db.Char(14) // 关联药品本位码\n  batch_number       String    @db.VarChar(50) // 批次号（格式：YYYYMMDD-001）\n  stock_quantity     Int       @default(0) // 当前库存量\n  expiration_date    DateTime // 有效期\n  alert_threshold    Int       @default(50) // 库存预警阈值\n  last_inbound_time  DateTime? // 最后入库时间\n  last_outbound_time DateTime? // 最后出库时间\n  drug               Drug      @relation(fields: [drug_code], references: [drug_code], onDelete: Restrict, onUpdate: Cascade)\n\n  // 唯一性约束与关联\n  @@unique([drug_code, batch_number])\n  @@map(\"inventory\")\n}\n\n// ---------------------------\n// 入库管理表\n// ---------------------------\nmodel Inbound {\n  inbound_id   Int      @id @default(autoincrement())\n  drug_code    String   @db.Char(14) // 关联药品本位码\n  batch_number String   @db.VarChar(50) // 批次号\n  quantity     Int // 入库数量\n  inbound_time DateTime @default(now()) // 入库时间\n  operator_id  Int? // 操作员ID\n\n  // 外键关联\n  drug Drug @relation(fields: [drug_code], references: [drug_code], onDelete: Restrict, onUpdate: Cascade)\n\n  @@map(\"inbound\")\n}\n\n// ---------------------------\n// 出库管理表\n// ---------------------------\nmodel Outbound {\n  outbound_id     Int      @id @default(autoincrement())\n  drug_code       String   @db.Char(14) // 关联药品本位码\n  batch_number    String   @db.VarChar(50) // 批次号\n  quantity        Int // 出库数量\n  prescription_id Int? // 关联处方（若为处方药）\n  outbound_type   String   @db.VarChar(20) // 出库类型（销售/调拨/退货）\n  outbound_time   DateTime @default(now()) // 出库时间\n\n  // 外键关联\n  drug         Drug          @relation(fields: [drug_code], references: [drug_code], onDelete: Restrict, onUpdate: Cascade)\n  prescription Prescription? @relation(fields: [prescription_id], references: [prescription_id], onDelete: SetNull, onUpdate: Cascade)\n\n  @@map(\"outbound\")\n}\n\n// ---------------------------\n// 调价历史表\n// ---------------------------\nmodel PriceHistory {\n  price_id       Int      @id @default(autoincrement())\n  drug_code      String   @db.Char(14) // 关联药品本位码\n  old_price      Float? // 原价格\n  new_price      Float // 新价格\n  effective_date DateTime // 生效日期\n  operator_id    Int? // 操作员ID\n\n  // 外键关联\n  drug Drug @relation(fields: [drug_code], references: [drug_code], onDelete: Restrict, onUpdate: Cascade)\n\n  @@map(\"price_history\")\n}\n",
+  "inlineSchemaHash": "8cdfa6e0b151e17cfd8b620d23826aedb9809c4b94696f0370b1cff7bdd36c8a",
   "copyEngine": true
 }
 
@@ -206,7 +331,7 @@ if (!fs.existsSync(path.join(__dirname, 'schema.prisma'))) {
   config.isBundled = true
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"Medicine\":{\"dbName\":null,\"schema\":null,\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"Int\",\"nativeType\":null,\"default\":{\"name\":\"autoincrement\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"name\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"price\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Float\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"stock\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Int\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"inventoryChecks\",\"kind\":\"object\",\"isList\":true,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"InventoryCheck\",\"nativeType\":null,\"relationName\":\"InventoryCheckToMedicine\",\"relationFromFields\":[],\"relationToFields\":[],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"inboundRecords\",\"kind\":\"object\",\"isList\":true,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"InboundRecord\",\"nativeType\":null,\"relationName\":\"InboundRecordToMedicine\",\"relationFromFields\":[],\"relationToFields\":[],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"outboundRecords\",\"kind\":\"object\",\"isList\":true,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"OutboundRecord\",\"nativeType\":null,\"relationName\":\"MedicineToOutboundRecord\",\"relationFromFields\":[],\"relationToFields\":[],\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false},\"InventoryCheck\":{\"dbName\":null,\"schema\":null,\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"Int\",\"nativeType\":null,\"default\":{\"name\":\"autoincrement\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"medicine\",\"kind\":\"object\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Medicine\",\"nativeType\":null,\"relationName\":\"InventoryCheckToMedicine\",\"relationFromFields\":[\"medicineId\"],\"relationToFields\":[\"id\"],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"medicineId\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":true,\"hasDefaultValue\":false,\"type\":\"Int\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"checkedStock\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Int\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"checkDate\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"DateTime\",\"nativeType\":null,\"default\":{\"name\":\"now\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false},\"InboundRecord\":{\"dbName\":null,\"schema\":null,\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"Int\",\"nativeType\":null,\"default\":{\"name\":\"autoincrement\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"medicine\",\"kind\":\"object\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Medicine\",\"nativeType\":null,\"relationName\":\"InboundRecordToMedicine\",\"relationFromFields\":[\"medicineId\"],\"relationToFields\":[\"id\"],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"medicineId\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":true,\"hasDefaultValue\":false,\"type\":\"Int\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"quantity\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Int\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"inboundDate\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"DateTime\",\"nativeType\":null,\"default\":{\"name\":\"now\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false},\"OutboundRecord\":{\"dbName\":null,\"schema\":null,\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"Int\",\"nativeType\":null,\"default\":{\"name\":\"autoincrement\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"medicine\",\"kind\":\"object\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Medicine\",\"nativeType\":null,\"relationName\":\"MedicineToOutboundRecord\",\"relationFromFields\":[\"medicineId\"],\"relationToFields\":[\"id\"],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"medicineId\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":true,\"hasDefaultValue\":false,\"type\":\"Int\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"quantity\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Int\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"outboundDate\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"DateTime\",\"nativeType\":null,\"default\":{\"name\":\"now\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Patient\":{\"dbName\":\"patients\",\"schema\":null,\"fields\":[{\"name\":\"visit_id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"VarChar\",[\"12\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"name\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"VarChar\",[\"100\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"gender\",\"kind\":\"enum\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Gender\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"contact\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"VarChar\",[\"50\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"first_visit_date\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"DateTime\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"medical_history\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"Text\",[]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"prescriptions\",\"kind\":\"object\",\"isList\":true,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Prescription\",\"nativeType\":null,\"relationName\":\"PatientToPrescription\",\"relationFromFields\":[],\"relationToFields\":[],\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false},\"Doctor\":{\"dbName\":\"doctors\",\"schema\":null,\"fields\":[{\"name\":\"doctor_id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"Int\",\"nativeType\":null,\"default\":{\"name\":\"autoincrement\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"name\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"VarChar\",[\"10\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"department\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"VarChar\",[\"20\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"prescriptions\",\"kind\":\"object\",\"isList\":true,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Prescription\",\"nativeType\":null,\"relationName\":\"DoctorToPrescription\",\"relationFromFields\":[],\"relationToFields\":[],\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false},\"Prescription\":{\"dbName\":\"prescriptions\",\"schema\":null,\"fields\":[{\"name\":\"prescription_id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"Int\",\"nativeType\":null,\"default\":{\"name\":\"autoincrement\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"patient_visit_id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":true,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"doctor_id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":true,\"hasDefaultValue\":false,\"type\":\"Int\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"create_time\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"DateTime\",\"nativeType\":null,\"default\":{\"name\":\"now\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"status\",\"kind\":\"enum\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"PrescriptionStatus\",\"nativeType\":null,\"default\":\"有效\",\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"diagnosis\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"VarChar\",[\"500\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"remarks\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"Text\",[]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"total_amount\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"Float\",\"nativeType\":null,\"default\":0,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"patient\",\"kind\":\"object\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Patient\",\"nativeType\":null,\"relationName\":\"PatientToPrescription\",\"relationFromFields\":[\"patient_visit_id\"],\"relationToFields\":[\"visit_id\"],\"relationOnDelete\":\"Restrict\",\"relationOnUpdate\":\"Cascade\",\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"doctor\",\"kind\":\"object\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Doctor\",\"nativeType\":null,\"relationName\":\"DoctorToPrescription\",\"relationFromFields\":[\"doctor_id\"],\"relationToFields\":[\"doctor_id\"],\"relationOnDelete\":\"Restrict\",\"relationOnUpdate\":\"Cascade\",\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"prescriptionDetails\",\"kind\":\"object\",\"isList\":true,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"PrescriptionDetail\",\"nativeType\":null,\"relationName\":\"PrescriptionToPrescriptionDetail\",\"relationFromFields\":[],\"relationToFields\":[],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"outbounds\",\"kind\":\"object\",\"isList\":true,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Outbound\",\"nativeType\":null,\"relationName\":\"OutboundToPrescription\",\"relationFromFields\":[],\"relationToFields\":[],\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false},\"PrescriptionDetail\":{\"dbName\":\"prescription_details\",\"schema\":null,\"fields\":[{\"name\":\"prescription_id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":true,\"hasDefaultValue\":false,\"type\":\"Int\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"drug_code\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":true,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"drug_name\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"VarChar\",[\"100\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"unit_price\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Float\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"quantity\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"Int\",\"nativeType\":null,\"default\":1,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"usage_instruction\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"VarChar\",[\"200\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"prescription\",\"kind\":\"object\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Prescription\",\"nativeType\":null,\"relationName\":\"PrescriptionToPrescriptionDetail\",\"relationFromFields\":[\"prescription_id\"],\"relationToFields\":[\"prescription_id\"],\"relationOnDelete\":\"Cascade\",\"relationOnUpdate\":\"Cascade\",\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"drug\",\"kind\":\"object\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Drug\",\"nativeType\":null,\"relationName\":\"DrugToPrescriptionDetail\",\"relationFromFields\":[\"drug_code\"],\"relationToFields\":[\"drug_code\"],\"relationOnDelete\":\"Restrict\",\"relationOnUpdate\":\"Cascade\",\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":{\"name\":null,\"fields\":[\"prescription_id\",\"drug_code\"]},\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false},\"Drug\":{\"dbName\":null,\"schema\":null,\"fields\":[{\"name\":\"drug_code\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"Char\",[\"14\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"generic_name\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"VarChar\",[\"100\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"brand_name\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":true,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"VarChar\",[\"100\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"dosage_form\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"VarChar\",[\"50\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"specification\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"VarChar\",[\"500\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"manufacturer\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"VarChar\",[\"100\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"unit_price\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Float\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"inventories\",\"kind\":\"object\",\"isList\":true,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Inventory\",\"nativeType\":null,\"relationName\":\"DrugToInventory\",\"relationFromFields\":[],\"relationToFields\":[],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"inbounds\",\"kind\":\"object\",\"isList\":true,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Inbound\",\"nativeType\":null,\"relationName\":\"DrugToInbound\",\"relationFromFields\":[],\"relationToFields\":[],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"outbounds\",\"kind\":\"object\",\"isList\":true,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Outbound\",\"nativeType\":null,\"relationName\":\"DrugToOutbound\",\"relationFromFields\":[],\"relationToFields\":[],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"priceHistories\",\"kind\":\"object\",\"isList\":true,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"PriceHistory\",\"nativeType\":null,\"relationName\":\"DrugToPriceHistory\",\"relationFromFields\":[],\"relationToFields\":[],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"prescriptionDetails\",\"kind\":\"object\",\"isList\":true,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"PrescriptionDetail\",\"nativeType\":null,\"relationName\":\"DrugToPrescriptionDetail\",\"relationFromFields\":[],\"relationToFields\":[],\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false},\"Inventory\":{\"dbName\":\"inventory\",\"schema\":null,\"fields\":[{\"name\":\"inventory_id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"Int\",\"nativeType\":null,\"default\":{\"name\":\"autoincrement\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"drug_code\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":true,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"Char\",[\"14\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"batch_number\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"VarChar\",[\"50\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"stock_quantity\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"Int\",\"nativeType\":null,\"default\":0,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"expiration_date\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"DateTime\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"alert_threshold\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"Int\",\"nativeType\":null,\"default\":50,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"last_inbound_time\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"DateTime\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"last_outbound_time\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"DateTime\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"drug\",\"kind\":\"object\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Drug\",\"nativeType\":null,\"relationName\":\"DrugToInventory\",\"relationFromFields\":[\"drug_code\"],\"relationToFields\":[\"drug_code\"],\"relationOnDelete\":\"Restrict\",\"relationOnUpdate\":\"Cascade\",\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[[\"drug_code\",\"batch_number\"]],\"uniqueIndexes\":[{\"name\":null,\"fields\":[\"drug_code\",\"batch_number\"]}],\"isGenerated\":false},\"Inbound\":{\"dbName\":\"inbound\",\"schema\":null,\"fields\":[{\"name\":\"inbound_id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"Int\",\"nativeType\":null,\"default\":{\"name\":\"autoincrement\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"drug_code\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":true,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"Char\",[\"14\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"batch_number\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"VarChar\",[\"50\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"quantity\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Int\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"inbound_time\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"DateTime\",\"nativeType\":null,\"default\":{\"name\":\"now\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"operator_id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Int\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"drug\",\"kind\":\"object\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Drug\",\"nativeType\":null,\"relationName\":\"DrugToInbound\",\"relationFromFields\":[\"drug_code\"],\"relationToFields\":[\"drug_code\"],\"relationOnDelete\":\"Restrict\",\"relationOnUpdate\":\"Cascade\",\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false},\"Outbound\":{\"dbName\":\"outbound\",\"schema\":null,\"fields\":[{\"name\":\"outbound_id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"Int\",\"nativeType\":null,\"default\":{\"name\":\"autoincrement\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"drug_code\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":true,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"Char\",[\"14\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"batch_number\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"VarChar\",[\"50\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"quantity\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Int\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"prescription_id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":true,\"hasDefaultValue\":false,\"type\":\"Int\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"outbound_type\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"VarChar\",[\"20\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"outbound_time\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"DateTime\",\"nativeType\":null,\"default\":{\"name\":\"now\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"drug\",\"kind\":\"object\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Drug\",\"nativeType\":null,\"relationName\":\"DrugToOutbound\",\"relationFromFields\":[\"drug_code\"],\"relationToFields\":[\"drug_code\"],\"relationOnDelete\":\"Restrict\",\"relationOnUpdate\":\"Cascade\",\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"prescription\",\"kind\":\"object\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Prescription\",\"nativeType\":null,\"relationName\":\"OutboundToPrescription\",\"relationFromFields\":[\"prescription_id\"],\"relationToFields\":[\"prescription_id\"],\"relationOnDelete\":\"SetNull\",\"relationOnUpdate\":\"Cascade\",\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false},\"PriceHistory\":{\"dbName\":\"price_history\",\"schema\":null,\"fields\":[{\"name\":\"price_id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"Int\",\"nativeType\":null,\"default\":{\"name\":\"autoincrement\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"drug_code\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":true,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"Char\",[\"14\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"old_price\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Float\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"new_price\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Float\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"effective_date\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"DateTime\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"operator_id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Int\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"drug\",\"kind\":\"object\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Drug\",\"nativeType\":null,\"relationName\":\"DrugToPriceHistory\",\"relationFromFields\":[\"drug_code\"],\"relationToFields\":[\"drug_code\"],\"relationOnDelete\":\"Restrict\",\"relationOnUpdate\":\"Cascade\",\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false}},\"enums\":{\"Gender\":{\"values\":[{\"name\":\"男\",\"dbName\":null},{\"name\":\"女\",\"dbName\":null}],\"dbName\":null},\"PrescriptionStatus\":{\"values\":[{\"name\":\"有效\",\"dbName\":null},{\"name\":\"已作废\",\"dbName\":null},{\"name\":\"已审核\",\"dbName\":null}],\"dbName\":null}},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = undefined
 config.compilerWasm = undefined

@@ -20,12 +20,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.7.0
- * Query Engine version: 3cff47a7f5d65c3ea74883f1d736e41d68ce91ed
+ * Prisma Client JS version: 6.8.1
+ * Query Engine version: 2060c79ba17c6bb9f5823312b6f6b7f4a845738e
  */
 Prisma.prismaVersion = {
-  client: "6.7.0",
-  engine: "3cff47a7f5d65c3ea74883f1d736e41d68ce91ed"
+  client: "6.8.1",
+  engine: "2060c79ba17c6bb9f5823312b6f6b7f4a845738e"
 }
 
 Prisma.PrismaClientKnownRequestError = () => {
@@ -120,32 +120,88 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.MedicineScalarFieldEnum = {
-  id: 'id',
+exports.Prisma.PatientScalarFieldEnum = {
+  visit_id: 'visit_id',
   name: 'name',
-  price: 'price',
-  stock: 'stock'
+  gender: 'gender',
+  contact: 'contact',
+  first_visit_date: 'first_visit_date',
+  medical_history: 'medical_history'
 };
 
-exports.Prisma.InventoryCheckScalarFieldEnum = {
-  id: 'id',
-  medicineId: 'medicineId',
-  checkedStock: 'checkedStock',
-  checkDate: 'checkDate'
+exports.Prisma.DoctorScalarFieldEnum = {
+  doctor_id: 'doctor_id',
+  name: 'name',
+  department: 'department'
 };
 
-exports.Prisma.InboundRecordScalarFieldEnum = {
-  id: 'id',
-  medicineId: 'medicineId',
+exports.Prisma.PrescriptionScalarFieldEnum = {
+  prescription_id: 'prescription_id',
+  patient_visit_id: 'patient_visit_id',
+  doctor_id: 'doctor_id',
+  create_time: 'create_time',
+  status: 'status',
+  diagnosis: 'diagnosis',
+  remarks: 'remarks',
+  total_amount: 'total_amount'
+};
+
+exports.Prisma.PrescriptionDetailScalarFieldEnum = {
+  prescription_id: 'prescription_id',
+  drug_code: 'drug_code',
+  drug_name: 'drug_name',
+  unit_price: 'unit_price',
   quantity: 'quantity',
-  inboundDate: 'inboundDate'
+  usage_instruction: 'usage_instruction'
 };
 
-exports.Prisma.OutboundRecordScalarFieldEnum = {
-  id: 'id',
-  medicineId: 'medicineId',
+exports.Prisma.DrugScalarFieldEnum = {
+  drug_code: 'drug_code',
+  generic_name: 'generic_name',
+  brand_name: 'brand_name',
+  dosage_form: 'dosage_form',
+  specification: 'specification',
+  manufacturer: 'manufacturer',
+  unit_price: 'unit_price'
+};
+
+exports.Prisma.InventoryScalarFieldEnum = {
+  inventory_id: 'inventory_id',
+  drug_code: 'drug_code',
+  batch_number: 'batch_number',
+  stock_quantity: 'stock_quantity',
+  expiration_date: 'expiration_date',
+  alert_threshold: 'alert_threshold',
+  last_inbound_time: 'last_inbound_time',
+  last_outbound_time: 'last_outbound_time'
+};
+
+exports.Prisma.InboundScalarFieldEnum = {
+  inbound_id: 'inbound_id',
+  drug_code: 'drug_code',
+  batch_number: 'batch_number',
   quantity: 'quantity',
-  outboundDate: 'outboundDate'
+  inbound_time: 'inbound_time',
+  operator_id: 'operator_id'
+};
+
+exports.Prisma.OutboundScalarFieldEnum = {
+  outbound_id: 'outbound_id',
+  drug_code: 'drug_code',
+  batch_number: 'batch_number',
+  quantity: 'quantity',
+  prescription_id: 'prescription_id',
+  outbound_type: 'outbound_type',
+  outbound_time: 'outbound_time'
+};
+
+exports.Prisma.PriceHistoryScalarFieldEnum = {
+  price_id: 'price_id',
+  drug_code: 'drug_code',
+  old_price: 'old_price',
+  new_price: 'new_price',
+  effective_date: 'effective_date',
+  operator_id: 'operator_id'
 };
 
 exports.Prisma.SortOrder = {
@@ -153,16 +209,84 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
-exports.Prisma.MedicineOrderByRelevanceFieldEnum = {
-  name: 'name'
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
 };
 
+exports.Prisma.PatientOrderByRelevanceFieldEnum = {
+  visit_id: 'visit_id',
+  name: 'name',
+  contact: 'contact',
+  medical_history: 'medical_history'
+};
+
+exports.Prisma.DoctorOrderByRelevanceFieldEnum = {
+  name: 'name',
+  department: 'department'
+};
+
+exports.Prisma.PrescriptionOrderByRelevanceFieldEnum = {
+  patient_visit_id: 'patient_visit_id',
+  diagnosis: 'diagnosis',
+  remarks: 'remarks'
+};
+
+exports.Prisma.PrescriptionDetailOrderByRelevanceFieldEnum = {
+  drug_code: 'drug_code',
+  drug_name: 'drug_name',
+  usage_instruction: 'usage_instruction'
+};
+
+exports.Prisma.DrugOrderByRelevanceFieldEnum = {
+  drug_code: 'drug_code',
+  generic_name: 'generic_name',
+  brand_name: 'brand_name',
+  dosage_form: 'dosage_form',
+  specification: 'specification',
+  manufacturer: 'manufacturer'
+};
+
+exports.Prisma.InventoryOrderByRelevanceFieldEnum = {
+  drug_code: 'drug_code',
+  batch_number: 'batch_number'
+};
+
+exports.Prisma.InboundOrderByRelevanceFieldEnum = {
+  drug_code: 'drug_code',
+  batch_number: 'batch_number'
+};
+
+exports.Prisma.OutboundOrderByRelevanceFieldEnum = {
+  drug_code: 'drug_code',
+  batch_number: 'batch_number',
+  outbound_type: 'outbound_type'
+};
+
+exports.Prisma.PriceHistoryOrderByRelevanceFieldEnum = {
+  drug_code: 'drug_code'
+};
+exports.Gender = exports.$Enums.Gender = {
+  男: '男',
+  女: '女'
+};
+
+exports.PrescriptionStatus = exports.$Enums.PrescriptionStatus = {
+  有效: '有效',
+  已作废: '已作废',
+  已审核: '已审核'
+};
 
 exports.Prisma.ModelName = {
-  Medicine: 'Medicine',
-  InventoryCheck: 'InventoryCheck',
-  InboundRecord: 'InboundRecord',
-  OutboundRecord: 'OutboundRecord'
+  Patient: 'Patient',
+  Doctor: 'Doctor',
+  Prescription: 'Prescription',
+  PrescriptionDetail: 'PrescriptionDetail',
+  Drug: 'Drug',
+  Inventory: 'Inventory',
+  Inbound: 'Inbound',
+  Outbound: 'Outbound',
+  PriceHistory: 'PriceHistory'
 };
 
 /**

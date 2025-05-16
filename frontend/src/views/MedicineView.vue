@@ -1,4 +1,3 @@
-<!-- src/views/MedicineView.vue -->
 <template>
   <el-card class="box-card">
     <template #header>
@@ -13,16 +12,16 @@
         </el-button>
       </div>
     </template>
-    
+
     <!-- 药品表格 -->
     <el-table :data="medicines" stripe style="width: 100%">
-      <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column prop="name" label="药品名称" />
+      <el-table-column prop="standardCode" label="本位码" />
+      <el-table-column prop="genericName" label="通用名" />
+      <el-table-column prop="tradeName" label="商品名" />
+      <el-table-column prop="dosageForm" label="剂型" />
       <el-table-column prop="specification" label="规格" />
-      <el-table-column prop="price" label="价格" width="100" />
-      <el-table-column prop="stock" label="库存" width="100" />
-      <el-table-column prop="unit" label="单位" width="80" />
-      <el-table-column prop="category" label="分类" width="100" />
+      <el-table-column prop="manufacturer" label="生产厂家" />
+      <el-table-column prop="currentPrice" label="当前售价" />
       <el-table-column label="操作" width="180">
         <template #default="scope">
           <el-button size="small" type="primary" @click="openEditDialog(scope.row)">
@@ -31,10 +30,13 @@
           <el-button size="small" type="danger" @click="deleteMedicine(scope.row.id)">
             <el-icon><Delete /></el-icon>删除
           </el-button>
+          <el-button size="small" type="info" @click="viewPriceHistory(scope.row.id)">
+            查看调价历史
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
-    
+
     <!-- 分页 -->
     <el-pagination
       @size-change="handleSizeChange"
@@ -47,38 +49,31 @@
       style="margin-top: 20px"
     />
   </el-card>
-  
+
   <!-- 新增/编辑药品对话框 -->
   <el-dialog :visible.sync="dialogVisible" title="药品信息">
     <template #content>
       <el-form :model="formData" ref="formRef" label-width="120px">
-        <el-form-item label="药品名称" prop="name">
-          <el-input v-model="formData.name" placeholder="请输入药品名称" />
+        <el-form-item label="本位码" prop="standardCode">
+          <el-input v-model="formData.standardCode" placeholder="请输入本位码" />
         </el-form-item>
-        <el-form-item label="药品规格" prop="specification">
-          <el-input v-model="formData.specification" placeholder="请输入药品规格" />
+        <el-form-item label="通用名" prop="genericName">
+          <el-input v-model="formData.genericName" placeholder="请输入通用名" />
         </el-form-item>
-        <el-form-item label="药品价格" prop="price">
-          <el-input-number v-model="formData.price" :min="0" placeholder="请输入药品价格" />
+        <el-form-item label="商品名" prop="tradeName">
+          <el-input v-model="formData.tradeName" placeholder="请输入商品名" />
         </el-form-item>
-        <el-form-item label="库存数量" prop="stock">
-          <el-input-number v-model="formData.stock" :min="0" placeholder="请输入库存数量" />
+        <el-form-item label="剂型" prop="dosageForm">
+          <el-input v-model="formData.dosageForm" placeholder="请输入剂型" />
         </el-form-item>
-        <el-form-item label="药品单位" prop="unit">
-          <el-select v-model="formData.unit" placeholder="请选择药品单位">
-            <el-option label="盒" value="盒" />
-            <el-option label="瓶" value="瓶" />
-            <el-option label="片" value="片" />
-            <el-option label="支" value="支" />
-          </el-select>
+        <el-form-item label="规格" prop="specification">
+          <el-input v-model="formData.specification" placeholder="请输入规格" />
         </el-form-item>
-        <el-form-item label="药品分类" prop="category">
-          <el-select v-model="formData.category" placeholder="请选择药品分类">
-            <el-option label="处方药" value="处方药" />
-            <el-option label="非处方药" value="非处方药" />
-            <el-option label="保健品" value="保健品" />
-            <el-option label="医疗器械" value="医疗器械" />
-          </el-select>
+        <el-form-item label="生产厂家" prop="manufacturer">
+          <el-input v-model="formData.manufacturer" placeholder="请输入生产厂家" />
+        </el-form-item>
+        <el-form-item label="当前售价" prop="currentPrice">
+          <el-input-number v-model="formData.currentPrice" :min="0" placeholder="请输入当前售价" />
         </el-form-item>
       </el-form>
     </template>
@@ -87,12 +82,31 @@
       <el-button type="primary" @click="saveMedicine">确定</el-button>
     </template>
   </el-dialog>
+
+  <!-- 药品调价历史对话框 -->
+  <el-dialog :visible.sync="priceHistoryDialogVisible" title="药品调价历史">
+    <el-table :data="priceHistory" stripe style="width: 100%">
+      <el-table-column prop="originalPrice" label="原价格" />
+      <el-table-column prop="newPrice" label="新价格" />
+      <el-table-column prop="effectiveDate" label="生效日期" />
+      <el-table-column prop="operatorId" label="操作员ID" />
+    </el-table>
+    <template #footer>
+      <el-button @click="priceHistoryDialogVisible = false">关闭</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { Plus, Edit, Delete } from '@element-plus/icons-vue';
-import { getMedicineList, createMedicine, updateMedicine, deleteMedicine as deleteApi } from '@/api/medicine';
+import {
+  getMedicineList,
+  createMedicine,
+  updateMedicine,
+  deleteMedicine as deleteApi,
+  getMedicinePriceHistory
+} from '@/api/medicine';
 import { ElMessage, ElMessageBox } from 'element-plus';
 
 const medicines = ref<any[]>([]);
@@ -102,15 +116,18 @@ const total = ref(0);
 const dialogVisible = ref(false);
 const formData = reactive({
   id: 0,
-  name: '',
+  standardCode: '',
+  genericName: '',
+  tradeName: '',
+  dosageForm: '',
   specification: '',
-  price: 0,
-  stock: 0,
-  unit: '盒',
-  category: '处方药'
+  manufacturer: '',
+  currentPrice: 0
 });
 const formRef = ref(null);
 const isEdit = ref(false);
+const priceHistoryDialogVisible = ref(false);
+const priceHistory = ref<any[]>([]);
 
 // 获取药品列表
 const fetchMedicines = async () => {
@@ -119,8 +136,8 @@ const fetchMedicines = async () => {
       page: currentPage.value,
       pageSize: pageSize.value
     });
-    medicines.value = response.data;
-    total.value = response.total;
+    medicines.value = response.data.data;
+    total.value = response.data.total;
   } catch (error) {
     console.error('Error fetching medicines:', error);
     ElMessage.error('获取药品列表失败');
@@ -144,12 +161,13 @@ const openCreateDialog = () => {
   // 重置表单
   Object.assign(formData, {
     id: 0,
-    name: '',
+    standardCode: '',
+    genericName: '',
+    tradeName: '',
+    dosageForm: '',
     specification: '',
-    price: 0,
-    stock: 0,
-    unit: '盒',
-    category: '处方药'
+    manufacturer: '',
+    currentPrice: 0
   });
   dialogVisible.value = true;
 };
@@ -164,11 +182,11 @@ const openEditDialog = (row: any) => {
 // 保存药品信息
 const saveMedicine = async () => {
   try {
-    if (!formData.name) {
-      ElMessage.warning('请输入药品名称');
+    if (!formData.tradeName) {
+      ElMessage.warning('请输入商品名');
       return;
     }
-    
+
     if (isEdit.value) {
       // 更新药品
       await updateMedicine(formData.id, formData);
@@ -178,7 +196,7 @@ const saveMedicine = async () => {
       await createMedicine(formData);
       ElMessage.success('创建成功');
     }
-    
+
     dialogVisible.value = false;
     fetchMedicines();
   } catch (error) {
@@ -209,6 +227,18 @@ const deleteMedicine = (id: number) => {
   }).catch(() => {
     // 取消操作
   });
+};
+
+// 查看药品调价历史
+const viewPriceHistory = async (medicineId: number) => {
+  try {
+    const response = await getMedicinePriceHistory(medicineId);
+    priceHistory.value = response.data;
+    priceHistoryDialogVisible.value = true;
+  } catch (error) {
+    console.error('Error fetching price history:', error);
+    ElMessage.error('获取调价历史失败');
+  }
 };
 
 onMounted(fetchMedicines);

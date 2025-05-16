@@ -1,3 +1,4 @@
+/* src/style.css */
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -23,9 +24,7 @@ a:hover {
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
+  margin: 0; /* 去除默认外边距 */
   min-width: 320px;
   min-height: 100vh;
 }
@@ -59,9 +58,11 @@ button:focus-visible {
 }
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  max-width: none; /* 去除最大宽度限制 */
+  width: 100%; /* 宽度占满视口 */
+  height: 100vh; /* 高度占满视口 */
+  margin: 0; /* 去除外边距 */
+  padding: 0; /* 去除内边距 */
   text-align: center;
 }
 

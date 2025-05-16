@@ -35,7 +35,7 @@ service.interceptors.response.use(
   (error: AxiosError) => {
     // 处理网络错误（如超时、断网等）
     return Promise.reject(new Error(
-      error.response?.data?.message || 
+      (error.response?.data as { message?: string })?.message || 
       error.message || 
       '网络请求失败'
     ));

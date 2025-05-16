@@ -1,4 +1,3 @@
-<!-- src/views/InventoryView.vue -->
 <template>
   <el-card class="box-card">
     <template #header>
@@ -9,11 +8,11 @@
         </el-button>
       </div>
     </template>
-    
+
     <!-- 搜索栏 -->
     <el-row class="mb-4">
       <el-col :span="8">
-        <el-input v-model="searchKey" placeholder="请输入药品名称" clearable @keyup.enter="search">
+        <el-input v-model="searchKey" placeholder="请输入药品本位码" clearable @keyup.enter="search">
           <template #append>
             <el-button @click="search">
               <el-icon><Search /></el-icon>搜索
@@ -22,28 +21,29 @@
         </el-input>
       </el-col>
     </el-row>
-    
+
     <!-- 库存表格 -->
-    <el-table :data="medicines" stripe style="width: 100%">
-      <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column prop="name" label="药品名称" />
-      <el-table-column prop="specification" label="规格" />
-      <el-table-column prop="price" label="价格" width="100" />
-      <el-table-column prop="stock" label="库存数量" width="100" />
-      <el-table-column prop="unit" label="单位" width="80" />
-      <el-table-column prop="category" label="分类" width="100" />
+    <el-table :data="inventories" stripe style="width: 100%">
+      <el-table-column prop="id" label="库存ID" />
+      <el-table-column prop="standardCode" label="药品本位码" />
+      <el-table-column prop="batchNumber" label="批次号" />
+      <el-table-column prop="currentStock" label="当前库存量" />
+      <el-table-column prop="expiryDate" label="有效期" />
+      <el-table-column prop="warningThreshold" label="库存预警阈值" />
+      <el-table-column prop="lastInboundTime" label="最后入库时间" />
+      <el-table-column prop="lastOutboundTime" label="最后出库时间" />
       <el-table-column label="操作" width="180">
         <template #default="scope">
-          <el-button size="small" type="primary" @click="editMedicine(scope.row)">
+          <el-button size="small" type="primary" @click="editInventory(scope.row)">
             <el-icon><Edit /></el-icon>编辑
           </el-button>
-          <el-button size="small" type="danger" @click="deleteMedicine(scope.row.id)">
+          <el-button size="small" type="danger" @click="deleteInventory(scope.row.id)">
             <el-icon><Delete /></el-icon>删除
           </el-button>
         </template>
       </el-table-column>
     </el-table>
-    
+
     <!-- 分页 -->
     <el-pagination
       @size-change="handleSizeChange"
@@ -56,43 +56,87 @@
       style="margin-top: 20px"
     />
   </el-card>
+
+  <!-- 新增/编辑库存对话框 -->
+  <el-dialog :visible.sync="dialogVisible" title="库存信息">
+    <template #content>
+      <el-form :model="formData" ref="formRef" label-width="120px">
+        <el-form-item label="药品本位码" prop="standardCode">
+          <el-input v-model="formData.standardCode" placeholder="请输入药品本位码" />
+        </el-form-item>
+        <el-form-item label="批次号" prop="batchNumber">
+          <el-input v-model="formData.batchNumber" placeholder="请输入批次号" />
+        </el-form-item>
+        <el-form-item label="当前库存量" prop="currentStock">
+          <el-input-number v-model="formData.currentStock" :min="0" placeholder="请输入当前库存量" />
+        </el-form-item>
+        <el-form-item label="有效期" prop="expiryDate">
+          <el-date-picker v-model="formData.expiryDate" type="date" placeholder="请选择有效期" />
+        </el-form-item>
+        <el-form-item label="库存预警阈值" prop="warningThreshold">
+          <el-input-number v-model="formData.warningThreshold" :min="0" placeholder="请输入库存预警阈值" />
+        </el-form-item>
+      </el-form>
+    </template>
+    <template #footer>
+      <el-button @click="dialogVisible = false">取消</el-button>
+      <el-button type="primary" @click="saveInventory">确定</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { Refresh, Search, Edit, Delete } from '@element-plus/icons-vue';
-import { getMedicineList } from '@/api/medicine';
+import {
+  getInventoryList,
+  createInventory,
+  updateInventory,
+  deleteInventory as deleteApi
+} from '@/api/inventory';
 import { ElMessage, ElMessageBox } from 'element-plus';
 
-const medicines = ref<any[]>([]);
+const inventories = ref<any[]>([]);
 const searchKey = ref('');
 const currentPage = ref(1);
 const pageSize = ref(10);
 const total = ref(0);
 const loading = ref(false);
 const errorMsg = ref('');
+const dialogVisible = ref(false);
+const formData = reactive({
+  id: 0,
+  standardCode: '',
+  batchNumber: '',
+  currentStock: 0,
+  expiryDate: null,
+  warningThreshold: 0
+});
+const formRef = ref(null);
+const isEdit = ref(false);
 
-const fetchMedicines = async () => {
+// 获取库存列表
+const fetchInventories = async () => {
   loading.value = true;
   errorMsg.value = '';
-  
+
   try {
-    const response = await getMedicineList({
+    const response = await getInventoryList({
       page: currentPage.value,
       pageSize: pageSize.value,
       keyword: searchKey.value
     });
-    
+
     // 验证响应格式
-    if (!response || !Array.isArray(response.data)) {
+    if (!response || !Array.isArray(response.data?.list)) {
       throw new Error('Invalid response format');
     }
-    
-    medicines.value = response.data;
-    total.value = response.total || 0;
+
+    inventories.value = response.data.list;
+    total.value = response.data.total || 0;
   } catch (error: any) {
-    console.error('Error fetching medicines:', error);
-    
+    console.error('Error fetching inventories:', error);
+
     // 区分不同类型的错误
     if (error.response) {
       // 服务器返回错误状态码（如 400、500）
@@ -104,39 +148,82 @@ const fetchMedicines = async () => {
       // 请求设置时出错
       errorMsg.value = `请求错误: ${error.message}`;
     }
-    
+
     ElMessage.error(errorMsg.value);
   } finally {
     loading.value = false;
   }
 };
-// 搜索药品
+
+// 搜索库存
 const search = () => {
   currentPage.value = 1;
-  fetchMedicines();
+  fetchInventories();
 };
 
 // 分页相关方法
 const handleSizeChange = (newSize: number) => {
   pageSize.value = newSize;
-  fetchMedicines();
+  fetchInventories();
 };
 
 const handleCurrentChange = (newPage: number) => {
   currentPage.value = newPage;
-  fetchMedicines();
+  fetchInventories();
 };
 
-// 编辑药品
-const editMedicine = (row: any) => {
-  console.log('Edit medicine:', row);
-  // 跳转到编辑页面或打开编辑对话框
+// 打开新增对话框
+const openCreateDialog = () => {
+  isEdit.value = false;
+  // 重置表单
+  Object.assign(formData, {
+    id: 0,
+    standardCode: '',
+    batchNumber: '',
+    currentStock: 0,
+    expiryDate: null,
+    warningThreshold: 0
+  });
+  dialogVisible.value = true;
 };
 
-// 删除药品
-const deleteMedicine = (id: number) => {
+// 打开编辑对话框
+const openEditDialog = (row: any) => {
+  isEdit.value = true;
+  Object.assign(formData, { ...row });
+  dialogVisible.value = true;
+};
+
+// 保存库存信息
+const saveInventory = async () => {
+  try {
+    if (!formData.standardCode || !formData.batchNumber) {
+      ElMessage.warning('请输入药品本位码和批次号');
+      return;
+    }
+
+    if (isEdit.value) {
+      // 更新库存
+      await updateInventory(formData.id, formData);
+      ElMessage.success('更新成功');
+    } else {
+      // 创建库存
+      await createInventory(formData);
+      ElMessage.success('创建成功');
+    }
+
+    dialogVisible.value = false;
+    fetchInventories();
+  } catch (error) {
+    console.error('Error saving inventory:', error);
+    ElMessage.error('保存失败');
+  }
+};
+
+// 删除库存记录
+const deleteInventory = (id: number) => {
   ElMessageBox.confirm(
-    '确定要删除此药品吗？',
+    '确定要删除此库存记录吗？',
     '提示',
     {
       confirmButtonText: '确定',
@@ -145,12 +232,11 @@ const deleteMedicine = (id: number) => {
     }
   ).then(async () => {
     try {
-      // 调用删除API
-      console.log('Delete medicine:', id);
-      fetchMedicines();
+      await deleteApi(id);
+      fetchInventories();
       ElMessage.success('删除成功');
     } catch (error) {
-      console.error('Error deleting medicine:', error);
+      console.error('Error deleting inventory:', error);
       ElMessage.error('删除失败');
     }
   }).catch(() => {
@@ -158,5 +244,5 @@ const deleteMedicine = (id: number) => {
   });
 };
 
-onMounted(fetchMedicines);
+onMounted(fetchInventories);
 </script>
