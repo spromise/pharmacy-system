@@ -100,6 +100,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { Plus, Edit, Delete } from '@element-plus/icons-vue';
+import axios from 'axios';
 import {
   getMedicineList,
   createMedicine,
@@ -129,6 +130,17 @@ const isEdit = ref(false);
 const priceHistoryDialogVisible = ref(false);
 const priceHistory = ref<any[]>([]);
 
+// 封装错误处理函数
+const handleError = (error: any, message: string) => {
+  console.error(message, error);
+  if (axios.isAxiosError(error)) {
+    const errorMessage = error.response?.data?.message || error.message;
+    ElMessage.error(`操作失败: ${errorMessage}`);
+  } else {
+    ElMessage.error(`${message}: ${error.message}`);
+  }
+};
+
 // 获取药品列表
 const fetchMedicines = async () => {
   try {
@@ -139,8 +151,7 @@ const fetchMedicines = async () => {
     medicines.value = response.data.data;
     total.value = response.data.total;
   } catch (error) {
-    console.error('Error fetching medicines:', error);
-    ElMessage.error('获取药品列表失败');
+    handleError(error, '获取药品列表失败');
   }
 };
 
@@ -200,8 +211,7 @@ const saveMedicine = async () => {
     dialogVisible.value = false;
     fetchMedicines();
   } catch (error) {
-    console.error('Error saving medicine:', error);
-    ElMessage.error('保存失败');
+    handleError(error, '保存药品信息失败');
   }
 };
 
@@ -221,8 +231,7 @@ const deleteMedicine = (id: number) => {
       fetchMedicines();
       ElMessage.success('删除成功');
     } catch (error) {
-      console.error('Error deleting medicine:', error);
-      ElMessage.error('删除失败');
+      handleError(error, '删除药品失败');
     }
   }).catch(() => {
     // 取消操作
@@ -236,8 +245,7 @@ const viewPriceHistory = async (medicineId: number) => {
     priceHistory.value = response.data;
     priceHistoryDialogVisible.value = true;
   } catch (error) {
-    console.error('Error fetching price history:', error);
-    ElMessage.error('获取调价历史失败');
+    handleError(error, '获取调价历史失败');
   }
 };
 

@@ -1,34 +1,30 @@
-// src/app.ts
 import express from 'express';
-import { PrismaClient } from '@prisma/client';
-// 后端 app.ts
-import medicineRoutes from './routes/medicineRoutes';
-// 后端 app.ts
 import cors from 'cors';
+import medicineRoutes from './routes/medicine.routes.ts';
+import prescriptionRoutes from './routes/prescription.routes.ts';
+import inboundRoutes from './routes/inbound.routes.ts';
+import outboundRoutes from './routes/outbound.routes.ts';
+import inventoryRoutes from './routes/inventory.routes.ts';
+import { errorHandler } from './utils/errorHandler.ts';
 
 const app = express();
-const prisma = new PrismaClient();
+const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
+// 中间件
 app.use(cors());
+app.use(express.json());
+
+// 路由
+app.use('/api/medicines', medicineRoutes);
+app.use('/api/prescriptions', prescriptionRoutes);
+app.use('/api/inbound', inboundRoutes);
+app.use('/api/outbound', outboundRoutes);
+app.use('/api/inventory', inventoryRoutes);
+
+// 错误处理中间件
+app.use(errorHandler);
 
 // 启动服务器
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
-const corsOptions = {
-  origin: 'http://localhost:5173', // 前端域名
-  credentials: true // 允许携带cookie等凭证
-};
-
-app.use(cors({
-  origin: 'http://localhost:5173', // 允许前端域名
-  credentials: true, // 允许携带凭证（如cookies）
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
-
-// 挂载API路由
-app.use('/api', medicineRoutes);
