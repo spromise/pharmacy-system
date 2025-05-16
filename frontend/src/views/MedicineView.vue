@@ -93,6 +93,7 @@
 import { ref, reactive, onMounted } from 'vue';
 import { Plus, Edit, Delete } from '@element-plus/icons-vue';
 import { getMedicineList, createMedicine, updateMedicine, deleteMedicine as deleteApi } from '@/api/medicine';
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 const medicines = ref<any[]>([]);
 const currentPage = ref(1);

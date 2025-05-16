@@ -12,7 +12,7 @@
       >
         <el-sub-menu index="1">
           <template #title>
-            <el-icon><Warehouse /></el-icon>
+            <el-icon><House /></el-icon>
             <span>库存管理</span>
           </template>
           <el-menu-item index="/inventory">库存查询</el-menu-item>
@@ -21,7 +21,7 @@
         
         <el-sub-menu index="2">
           <template #title>
-            <el-icon><Medkit /></el-icon>
+            <el-icon><FirstAidKit /></el-icon>
             <span>药品管理</span>
           </template>
           <el-menu-item index="/medicine">药品信息</el-menu-item>
@@ -30,7 +30,7 @@
         
         <el-sub-menu index="3">
           <template #title>
-            <el-icon><Transfer /></el-icon>
+            <el-icon><van /></el-icon>
             <span>出入库管理</span>
           </template>
           <el-menu-item index="/inbound">药品入库</el-menu-item>
@@ -74,7 +74,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Warehouse, Medkit, Transfer, Document, Avatar } from '@element-plus/icons-vue';
+import { Document, Avatar } from '@element-plus/icons-vue';
+
 
 const activeMenu = ref('/inventory');
 

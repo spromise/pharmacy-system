@@ -4,7 +4,7 @@
     <template #header>
       <div class="clearfix">
         <span>库存管理</span>
-        <el-button style="float: right; padding: 3px 0" type="text">
+        <el-button style="float: right; padding: 3px 0" link>
           <el-icon><Refresh /></el-icon>刷新
         </el-button>
       </div>
@@ -62,29 +62,54 @@
 import { ref, onMounted } from 'vue';
 import { Refresh, Search, Edit, Delete } from '@element-plus/icons-vue';
 import { getMedicineList } from '@/api/medicine';
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 const medicines = ref<any[]>([]);
 const searchKey = ref('');
 const currentPage = ref(1);
 const pageSize = ref(10);
 const total = ref(0);
+const loading = ref(false);
+const errorMsg = ref('');
 
-// 获取药品列表
 const fetchMedicines = async () => {
+  loading.value = true;
+  errorMsg.value = '';
+  
   try {
     const response = await getMedicineList({
       page: currentPage.value,
       pageSize: pageSize.value,
       keyword: searchKey.value
     });
+    
+    // 验证响应格式
+    if (!response || !Array.isArray(response.data)) {
+      throw new Error('Invalid response format');
+    }
+    
     medicines.value = response.data;
-    total.value = response.total;
-  } catch (error) {
+    total.value = response.total || 0;
+  } catch (error: any) {
     console.error('Error fetching medicines:', error);
-    ElMessage.error('获取药品列表失败');
+    
+    // 区分不同类型的错误
+    if (error.response) {
+      // 服务器返回错误状态码（如 400、500）
+      errorMsg.value = `请求失败 (${error.response.status}): ${error.response.data.message || '服务器错误'}`;
+    } else if (error.request) {
+      // 请求已发送但无响应
+      errorMsg.value = '服务器未响应，请检查网络连接';
+    } else {
+      // 请求设置时出错
+      errorMsg.value = `请求错误: ${error.message}`;
+    }
+    
+    ElMessage.error(errorMsg.value);
+  } finally {
+    loading.value = false;
   }
 };
-
 // 搜索药品
 const search = () => {
   currentPage.value = 1;
