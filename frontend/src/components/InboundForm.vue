@@ -1,4 +1,3 @@
-<!-- components/inbound/InboundForm.vue -->
 <template>
   <el-card class="box-card">
     <template #header>
@@ -8,21 +7,25 @@
     </template>
     
     <el-form :model="form" ref="formRef" label-width="120px">
-      <!-- 商品名选择/本位码输入 -->
+      <!-- 药品选择/本位码输入 -->
       <el-form-item label="药品选择" required>
         <el-row :gutter="10">
           <el-col :span="12">
             <el-select
               style="width: 200px"
-              v-model="form.brand_name"
-              placeholder="选择商品名"
-              @change="handleBrandSelect"
+              v-model="form.drug_code"
+              placeholder="选择药品"
+              @change="handleDrugSelect"
+              filterable
+              remote
+              :remote-method="searchDrugs"
+              :loading="loading"
             >
               <el-option
                 v-for="drug in drugOptions"
                 :key="drug.drug_code"
-                :label="`${drug.brand_name || drug.generic_name} (${drug.drug_code})`"
-                :value="drug.brand_name"
+                :label="`${drug.generic_name} (${drug.drug_code})`"
+                :value="drug.drug_code"
               />
             </el-select>
           </el-col>
@@ -39,7 +42,7 @@
 
       <!-- 药品信息展示 -->
       <el-form-item label="药品信息" v-if="drugInfo">
-        <el-descriptions border column="3">
+        <el-descriptions border column="4">
           <el-descriptions-item label="通用名称">{{ drugInfo.generic_name }}</el-descriptions-item>
           <el-descriptions-item label="商品名">{{ drugInfo.brand_name || '-' }}</el-descriptions-item>
           <el-descriptions-item label="剂型">{{ drugInfo.dosage_form }}</el-descriptions-item>
@@ -81,7 +84,7 @@
       <el-form-item
         label="药品信息"
         :required="!drugExists"
-        v-if="!drugExists && (form.drug_code || form.brand_name)"
+        v-if="!drugExists && form.drug_code"
       >
         <el-alert
           title="药品信息不存在，请补充以下信息"
@@ -133,22 +136,27 @@ import {
   inboundMedicine, 
   getPharmacistList 
 } from '@/api/inboundOutbound';
+import { getMedicineList } from '@/api/medicine';
 
-// 优化：移除多余的 drugOptions 及 fetchDrugList，保留药师列表
+// 状态管理
 const formRef = ref(null);
 const emit = defineEmits(['inbound-success']);
+const drugOptions = ref<DrugOption[]>([]);
+const pharmacists = ref([]);
+const loading = ref(false);
 
-// 表单数据整合
+// 表单数据（直接使用drug_code作为选中值）
 const form = reactive({
-  drug_code: '',         // 药品本位码（支持手动输入或通过商品名填充）
-  brand_name: '',        // 商品名（支持下拉选择）
+  drug_code: '',         // 药品本位码
   batch_number: '',
   quantity: 1,
   expiration_date: new Date(),
   pharmacist_id: null
 });
 
+// 新药品信息（用于创建不存在的药品）
 const newDrug = reactive({
+  drug_code: '',         // 药品本位码
   generic_name: '',
   brand_name: '',
   dosage_form: '',
@@ -157,52 +165,98 @@ const newDrug = reactive({
   unit_price: 0
 });
 
+// 药品状态
 const drugExists = ref(false);
 const drugInfo = ref(null);
-const pharmacists = ref([]);
 
-// 验证药品存在性（统一处理本位码和商品名）
+// 药品类型定义
+interface DrugOption {
+  drug_code: string;     // 药品本位码
+  generic_name: string;  // 通用名
+  brand_name?: string;   // 商品名（可选）
+  dosage_form?: string;  // 剂型
+}
+
+// 搜索药品（支持远程搜索）
+const searchDrugs = async (keyword: string) => {
+  loading.value = true;
+  try {
+    const response = await getMedicineList({
+      page: 1,
+      pageSize: 20,
+      keyword
+    });
+    
+    drugOptions.value = response.data.map(drug => ({
+      drug_code: drug.drug_code,
+      generic_name: drug.generic_name,
+      brand_name: drug.brand_name,
+      dosage_form: drug.dosage_form
+    }));
+  } catch (error) {
+    console.error('搜索药品失败', error);
+    ElMessage.error('搜索药品失败');
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 处理药品选择
+const handleDrugSelect = (drugCode: string) => {
+  // 清空手动输入的本位码（如果有）
+  form.drug_code = drugCode;
+  checkDrugExist();
+};
+
+// 处理本位码输入
+const handleDrugCodeInput = (value: string) => {
+  // 清空已选择的药品（如果有）
+  const selectedDrug = drugOptions.value.find(d => d.drug_code === value);
+  if (!selectedDrug) {
+    drugExists.value = false;
+    drugInfo.value = null;
+  }
+};
+
+// 验证药品存在性
 const checkDrugExist = async () => {
-  const lookupCode = form.drug_code || 
-    drugOptions.value.find(d => d.brand_name === form.brand_name)?.drug_code;
-
-  if (!lookupCode) {
+  const drugCode = form.drug_code;
+  
+  if (!drugCode) {
     drugExists.value = false;
     drugInfo.value = null;
     return;
   }
 
   try {
-    const { data } = await checkDrugExists(lookupCode);
+    // 假设 checkDrugExists 返回 { exists: boolean, drug?: object }
+    const response = await checkDrugExists(drugCode);
+    const data = response.data || response; // 兼容不同响应结构
+    
+    // 确保 data 存在且包含 exists 字段
+    if (typeof data !== 'object' || data === null || data.exists === undefined) {
+      throw new Error('无效的响应结构');
+    }
+
     drugExists.value = data.exists;
-    drugInfo.value = data.drug;
+    drugInfo.value = data.drug || null; // 处理药品信息
     
     if (!data.exists) {
-      // 填充新药品基础信息（如果通过商品名选择但药品不存在）
-      const selectedDrug = drugOptions.value.find(d => d.brand_name === form.brand_name);
+      // 填充新药品基础信息（如果药品不存在）
+      const selectedDrug = drugOptions.value.find(d => d.drug_code === drugCode);
       if (selectedDrug) {
+        newDrug.drug_code = drugCode;
         newDrug.generic_name = selectedDrug.generic_name;
         newDrug.dosage_form = selectedDrug.dosage_form;
       }
     }
   } catch (error) {
-    console.error('验证药品失败', error);
+    drugExists.value = false;
+    drugInfo.value = null;
   }
 };
 
-// 处理商品名选择
-const handleBrandSelect = (brandName: string) => {
-  form.drug_code = ''; // 清空本位码输入
-  checkDrugExist(); // 自动验证选择的商品名
-};
-
-// 处理本位码输入
-const handleDrugCodeInput = (value: string) => {
-  form.brand_name = ''; // 清空商品名选择
-  checkDrugExist(); // 自动验证输入的本位码
-};
-
-// 获取药师列表（保留必要API）
+// 获取药师列表
 const fetchPharmacists = async () => {
   try {
     const response = await getPharmacistList();
@@ -213,6 +267,34 @@ const fetchPharmacists = async () => {
   }
 };
 
+// 获取药品列表
+const fetchDrugList = async () => {
+  loading.value = true;
+  try {
+    const response = await getMedicineList({
+      page: 1,
+      pageSize: 100
+    });
+    
+    drugOptions.value = response.data.map(drug => ({
+      drug_code: drug.drug_code,
+      generic_name: drug.generic_name,
+      brand_name: drug.brand_name,
+      dosage_form: drug.dosage_form
+    }));
+    
+    if (drugOptions.value.length === 0) {
+      ElMessage.warning('当前没有可选择的药品，请先维护药品基础信息');
+    }
+  } catch (error) {
+    console.error('获取药品列表失败', error);
+    ElMessage.error('获取药品列表失败，请联系管理员');
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 提交入库
 const handleSubmit = async () => {
   try {
     // 验证表单
@@ -269,18 +351,32 @@ const handleSubmit = async () => {
 
 // 重置表单
 const resetForm = () => {
-  // 省略重复代码...
-  form.brand_name = '';
   form.drug_code = '';
+  form.batch_number = '';
+  form.quantity = 1;
+  form.expiration_date = new Date();
+  form.pharmacist_id = null;
+  
+  newDrug.drug_code = '';
+  newDrug.generic_name = '';
+  newDrug.brand_name = '';
+  newDrug.dosage_form = '';
+  newDrug.specification = '';
+  newDrug.manufacturer = '';
+  newDrug.unit_price = 0;
+  
+  drugExists.value = false;
+  drugInfo.value = null;
 };
 
-// 仅加载药师列表（移除药品列表请求）
+// 组件挂载时加载药品列表和药师列表
 onMounted(() => {
   fetchPharmacists();
+  fetchDrugList();
 });
 
 // 监听字段变化触发验证
-watch([() => form.drug_code, () => form.brand_name], () => {
+watch(() => form.drug_code, () => {
   checkDrugExist();
 });
 </script>

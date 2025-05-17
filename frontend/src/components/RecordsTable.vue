@@ -1,4 +1,3 @@
-<!-- components/RecordsTable.vue -->
 <template>
   <el-card class="box-card">
     <template #header>
@@ -31,34 +30,28 @@
     <!-- 记录表格 -->
     <el-table :data="records" stripe style="width: 100%">
       <el-table-column type="index" label="序号" width="60" />
-      <el-table-column prop="drug.generic_name" label="药品名称" min-width="120" />
-      <el-table-column prop="drug_code" label="药品本位码" min-width="140" />
-      <el-table-column prop="batch_number" label="批次号" min-width="120" />
-      <el-table-column prop="quantity" label="数量" width="100" />
+      <el-table-column prop="drug.generic_name" label="药品名称" min-width="80" />
+      <el-table-column prop="drug.brand_name" label="商品名" min-width="80" />
+      <el-table-column prop="drug_code" label="药品本位码" min-width="60" />
+      <el-table-column prop="batch_number" label="批次号" min-width="60" />
+      <el-table-column prop="quantity" label="数量" width="60" />
       
+      <!-- 时间列 -->
       <el-table-column label="时间" width="180">
         <template #default="scope">
           {{ formatDateTime(recordType === 'inbound' ? scope.row.inbound_time : scope.row.outbound_time) }}
         </template>
       </el-table-column>
-      
-      <el-table-column label="操作员/处方ID" width="120">
+
+      <!-- 出库类型列（仅出库记录显示） -->
+      <el-table-column 
+        v-if="recordType === 'outbound'"
+        prop="outbound_type" 
+        label="出库类型" 
+        width="100"
+      >
         <template #default="scope">
-          {{ recordType === 'inbound' 
-            ? scope.row.operator_id 
-            : scope.row.prescription_id || '-' }}
-        </template>
-      </el-table-column>
-      
-      <el-table-column label="操作" width="80">
-        <template #default="scope">
-          <el-button 
-            type="text" 
-            size="small" 
-            @click="() => viewDetail(scope.row)"
-          >
-            详情
-          </el-button>
+          {{ getOutboundTypeText(scope.row.outbound_type) }}
         </template>
       </el-table-column>
     </el-table>
@@ -115,6 +108,15 @@ const emit = defineEmits([
 // 格式化日期时间
 const formatDateTime = (dateTime: string) => {
   return dayjs(dateTime).format('YYYY-MM-DD HH:mm:ss');
+};
+
+// 出库类型文本转换（可根据实际业务扩展）
+const getOutboundTypeText = (type: string) => {
+  switch (type) {
+    case 'PRESCRIPTION_PICKUP': return '处方取药';
+    case 'LOSS': return '损耗出库';
+    default: return type;
+  }
 };
 
 // 搜索记录

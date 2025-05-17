@@ -3,7 +3,7 @@
     <template #header>
       <div class="clearfix">
         <span>库存查询</span>
-        <el-button style="float: right; padding: 3px 0" link>
+        <el-button style="float: right; padding: 3px 0" link @click="fetchInventories">
           <el-icon><Refresh /></el-icon>刷新
         </el-button>
       </div>
@@ -12,7 +12,12 @@
     <!-- 搜索栏 -->
     <el-row class="mb-4">
       <el-col :span="8">
-        <el-input v-model="searchKey" placeholder="请输入药品本位码" clearable @keyup.enter="search">
+        <el-input 
+          v-model="searchKey" 
+          placeholder="请输入药品本位码、药品名称或商品名" 
+          clearable 
+          @keyup.enter="search"
+        >
           <template #append>
             <el-button @click="search">
               <el-icon><Search /></el-icon>搜索
@@ -24,16 +29,25 @@
 
     <!-- 库存表格 -->
     <el-table :data="inventories" stripe style="width: 100%">
-      <el-table-column prop="drug_code" label="药品本位码" />
-      <el-table-column prop="batch_number" label="批次号" />
-      <el-table-column prop="stock_quantity" label="当前库存量" />
-      <el-table-column prop="alert_threshold" label="库存预警阈值" />
-      <el-table-column label="最后入库时间">
+      <el-table-column prop="drug_code" label="药品本位码" min-width="100" />
+      <el-table-column label="药品名称" min-width="100">
+        <template #default="scope">
+          {{ scope.row.drug?.generic_name || '-' }}
+        </template>
+      </el-table-column>
+      <el-table-column label="商品名" min-width="100">
+        <template #default="scope">
+          {{ scope.row.drug?.brand_name || '-' }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="stock_quantity" label="当前库存量" width="120" />
+      <el-table-column prop="alert_threshold" label="库存预警阈值" width="120" />
+      <el-table-column label="最后入库时间" width="160">
         <template #default="scope">
           {{ formatDateTime(scope.row.last_inbound_time) }}
         </template>
       </el-table-column>
-      <el-table-column label="最后出库时间">
+      <el-table-column label="最后出库时间" width="160">
         <template #default="scope">
           {{ formatDateTime(scope.row.last_outbound_time) }}
         </template>
@@ -56,11 +70,9 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { Refresh, Search, Edit, Delete } from '@element-plus/icons-vue';
-import {
-  getInventoryList,
-} from '@/api/inventory';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { Refresh, Search } from '@element-plus/icons-vue';
+import { getInventoryList } from '@/api/inventory';
+import { ElMessage } from 'element-plus';
 import dayjs from 'dayjs';
 
 const inventories = ref<any[]>([]);
@@ -69,9 +81,6 @@ const currentPage = ref(1);
 const pageSize = ref(10);
 const total = ref(0);
 const loading = ref(false);
-const errorMsg = ref('');
-
-
 
 // 格式化日期时间为年月日时分
 const formatDateTime = (dateTime: string | null) => {
@@ -81,7 +90,6 @@ const formatDateTime = (dateTime: string | null) => {
 // 获取库存列表
 const fetchInventories = async () => {
   loading.value = true;
-  errorMsg.value = '';
 
   try {
     const response = await getInventoryList({
@@ -99,20 +107,7 @@ const fetchInventories = async () => {
     total.value = response.data.total || 0;
   } catch (error: any) {
     console.error('Error fetching inventories:', error);
-
-    // 区分不同类型的错误
-    if (error.response) {
-      // 服务器返回错误状态码（如 400、500）
-      errorMsg.value = `请求失败 (${error.response.status}): ${error.response.data.message || '服务器错误'}`;
-    } else if (error.request) {
-      // 请求已发送但无响应
-      errorMsg.value = '服务器未响应，请检查网络连接';
-    } else {
-      // 请求设置时出错
-      errorMsg.value = `请求错误: ${error.message}`;
-    }
-
-    ElMessage.error(errorMsg.value);
+    ElMessage.error(error.message || '获取库存列表失败');
   } finally {
     loading.value = false;
   }

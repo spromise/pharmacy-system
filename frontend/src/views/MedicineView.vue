@@ -6,7 +6,7 @@
         <el-button
           style="float: right; padding: 3px 0"
           type="primary"
-          @click="openCreateDialog"
+          @click="dialogVisible = true"
         >
           <el-icon :size=10><Plus /></el-icon>新增药品
         </el-button>
@@ -48,8 +48,7 @@
   </el-card>
 
   <!-- 新增/编辑药品对话框 -->
-  <el-dialog :visible.sync="dialogVisible" title="药品信息">
-    <template #content>
+  <el-dialog v-model="dialogVisible" title="药品信息">
       <el-form :model="formData" ref="formRef" label-width="120px">
         <el-form-item label="本位码" prop="drug_code">
           <el-input v-model="formData.drug_code" placeholder="请输入本位码" />
@@ -73,7 +72,6 @@
           <el-input-number v-model="formData.unit_price" :min="0" placeholder="请输入当前售价" />
         </el-form-item>
       </el-form>
-    </template>
     <template #footer>
       <el-button @click="dialogVisible = false">取消</el-button>
       <el-button type="primary" @click="saveMedicine">确定</el-button>

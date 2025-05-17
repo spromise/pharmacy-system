@@ -69,24 +69,119 @@ export const getPrescriptionsByPatient = async (req: Request, res: Response) => 
   }
 };
 
-// 更新处方明细取药状态
-export const updatePrescriptionDetailStatus = async (req: Request, res: Response) => {
+export const updatePrescriptionDetailStatus = async (
+  req: Request,
+  res: Response
+) => {
   const { prescriptionId, drugCode } = req.params;
   const { pickupStatus } = req.body;
 
   try {
-    const updated = await prisma.prescriptionDetail.update({
-      where: { 
-        prescription_id_drug_code: {
-          prescription_id: parseInt(prescriptionId),
-          drug_code: drugCode
+    const result = await prisma.$transaction(async (tx) => {
+      const prescriptionDetail = await tx.prescriptionDetail.findUnique({
+        where: { 
+          prescription_id_drug_code: { 
+            prescription_id: parseInt(prescriptionId), 
+            drug_code: drugCode 
+          }
+        },
+        include: { 
+          drug: { 
+            include: { 
+              inventories: { 
+                orderBy: { last_inbound_time: 'desc' }, 
+                take: 1 
+              }
+            }
+          }
         }
-      },
-      data: { pickupStatus }
+      });
+
+      if (!prescriptionDetail) {
+        throw new Error('处方明细不存在');
+      }
+
+      const inventory = prescriptionDetail.drug.inventories[0];
+      if (!inventory) {
+        throw new Error(`药品 ${prescriptionDetail.drug.generic_name} 无库存记录`);
+      }
+
+      if (inventory.stock_quantity < prescriptionDetail.quantity) {
+        throw new Error(`库存不足，当前库存：${inventory.stock_quantity}`);
+      }
+
+      const isStatusChangeToPickedUp = 
+        prescriptionDetail.pickupStatus === '未取药' && pickupStatus === '已取药';
+      
+      if (!isStatusChangeToPickedUp) {
+        return tx.prescriptionDetail.update({
+          where: { 
+            prescription_id_drug_code: { 
+              prescription_id: parseInt(prescriptionId), 
+              drug_code: drugCode 
+            }
+          },
+          data: { pickupStatus }
+        });
+      }
+
+      const timestamp = new Date().getTime().toString().slice(-6);
+      const randomNum = Math.floor(Math.random() * 900 + 100);
+      const batchNumber = `OUT-${timestamp}-${randomNum}`;
+
+      // 修正后的出库记录创建逻辑（移除 drug_code 顶级字段）
+      const outboundRecord = await tx.outbound.create({
+        data: {
+          batch_number: batchNumber,
+          quantity: prescriptionDetail.quantity,
+          outbound_time: new Date(),
+          outbound_type: "PRESCRIPTION_PICKUP",
+          prescription: { 
+            connect: { prescription_id: parseInt(prescriptionId) } 
+          },
+          drug: { 
+            connect: { drug_code: drugCode } // 通过 drug.connect 关联药品
+          }
+        }
+      });
+
+      // 更新库存时使用 inventory_id 或批次号关联
+      const updatedInventory = await tx.inventory.update({
+        where: { 
+          inventory_id: inventory.inventory_id // 或通过 drug_code 和 batch_number
+        },
+        data: {
+          stock_quantity: { decrement: prescriptionDetail.quantity },
+          last_outbound_time: new Date()
+        }
+      });
+
+      const updatedStatus = await tx.prescriptionDetail.update({
+        where: { 
+          prescription_id_drug_code: { 
+            prescription_id: parseInt(prescriptionId), 
+            drug_code: drugCode 
+          }
+        },
+        data: { pickupStatus }
+      });
+
+      return { updatedStatus, outboundRecord, updatedInventory };
     });
 
-    res.status(200).json({ code: 200, data: updated });
+    res.status(200).json({ 
+      code: 200, 
+      message: '状态更新成功并完成出库', 
+      data: result 
+    });
+
   } catch (error) {
-    res.status(500).json({ code: 500, message: '更新状态失败' });
+    console.error('操作失败:', error);
+    await prisma.$rollback();
+    res.status(500).json({ 
+      code: 500, 
+      message: '更新状态失败', 
+      error: error.message 
+    });
   }
 };

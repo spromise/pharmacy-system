@@ -1,33 +1,3 @@
-/*
-  Warnings:
-
-  - You are about to drop the `inboundrecord` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `inventorycheck` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `medicine` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `outboundrecord` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropForeignKey
-ALTER TABLE `inboundrecord` DROP FOREIGN KEY `InboundRecord_medicineId_fkey`;
-
--- DropForeignKey
-ALTER TABLE `inventorycheck` DROP FOREIGN KEY `InventoryCheck_medicineId_fkey`;
-
--- DropForeignKey
-ALTER TABLE `outboundrecord` DROP FOREIGN KEY `OutboundRecord_medicineId_fkey`;
-
--- DropTable
-DROP TABLE `inboundrecord`;
-
--- DropTable
-DROP TABLE `inventorycheck`;
-
--- DropTable
-DROP TABLE `medicine`;
-
--- DropTable
-DROP TABLE `outboundrecord`;
-
 -- CreateTable
 CREATE TABLE `patients` (
     `visit_id` VARCHAR(12) NOT NULL,
@@ -55,7 +25,6 @@ CREATE TABLE `prescriptions` (
     `patient_visit_id` VARCHAR(191) NOT NULL,
     `doctor_id` INTEGER NOT NULL,
     `create_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `status` ENUM('有效', '已作废', '已审核') NOT NULL DEFAULT '有效',
     `diagnosis` VARCHAR(500) NULL,
     `remarks` TEXT NULL,
     `total_amount` DOUBLE NOT NULL DEFAULT 0.0,
@@ -73,6 +42,7 @@ CREATE TABLE `prescription_details` (
     `unit_price` DOUBLE NOT NULL,
     `quantity` INTEGER NOT NULL DEFAULT 1,
     `usage_instruction` VARCHAR(200) NOT NULL,
+    `pickupStatus` ENUM('已取药', '未取药') NOT NULL DEFAULT '未取药',
 
     PRIMARY KEY (`prescription_id`, `drug_code`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -95,15 +65,20 @@ CREATE TABLE `Drug` (
 CREATE TABLE `inventory` (
     `inventory_id` INTEGER NOT NULL AUTO_INCREMENT,
     `drug_code` CHAR(14) NOT NULL,
-    `batch_number` VARCHAR(50) NOT NULL,
     `stock_quantity` INTEGER NOT NULL DEFAULT 0,
-    `expiration_date` DATETIME(3) NOT NULL,
     `alert_threshold` INTEGER NOT NULL DEFAULT 50,
     `last_inbound_time` DATETIME(3) NULL,
     `last_outbound_time` DATETIME(3) NULL,
 
-    UNIQUE INDEX `inventory_drug_code_batch_number_key`(`drug_code`, `batch_number`),
     PRIMARY KEY (`inventory_id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `pharmacists` (
+    `pharmacist_id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(10) NOT NULL,
+
+    PRIMARY KEY (`pharmacist_id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
@@ -113,7 +88,8 @@ CREATE TABLE `inbound` (
     `batch_number` VARCHAR(50) NOT NULL,
     `quantity` INTEGER NOT NULL,
     `inbound_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `operator_id` INTEGER NULL,
+    `expiration_date` DATETIME(3) NOT NULL,
+    `pharmacist_id` INTEGER NULL,
 
     PRIMARY KEY (`inbound_id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -127,6 +103,7 @@ CREATE TABLE `outbound` (
     `prescription_id` INTEGER NULL,
     `outbound_type` VARCHAR(20) NOT NULL,
     `outbound_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `pharmacist_id` INTEGER NULL,
 
     PRIMARY KEY (`outbound_id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -138,9 +115,22 @@ CREATE TABLE `price_history` (
     `old_price` DOUBLE NULL,
     `new_price` DOUBLE NOT NULL,
     `effective_date` DATETIME(3) NOT NULL,
-    `operator_id` INTEGER NULL,
+    `pharmacist_id` INTEGER NULL,
 
     PRIMARY KEY (`price_id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `inventory_check` (
+    `check_id` INTEGER NOT NULL AUTO_INCREMENT,
+    `drug_code` CHAR(14) NOT NULL,
+    `physical_quantity` INTEGER NOT NULL,
+    `system_quantity` INTEGER NOT NULL,
+    `discrepancy_reason` TEXT NULL,
+    `check_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `pharmacist_id` INTEGER NULL,
+
+    PRIMARY KEY (`check_id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
@@ -162,10 +152,25 @@ ALTER TABLE `inventory` ADD CONSTRAINT `inventory_drug_code_fkey` FOREIGN KEY (`
 ALTER TABLE `inbound` ADD CONSTRAINT `inbound_drug_code_fkey` FOREIGN KEY (`drug_code`) REFERENCES `Drug`(`drug_code`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `inbound` ADD CONSTRAINT `inbound_pharmacist_id_fkey` FOREIGN KEY (`pharmacist_id`) REFERENCES `pharmacists`(`pharmacist_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `outbound` ADD CONSTRAINT `outbound_drug_code_fkey` FOREIGN KEY (`drug_code`) REFERENCES `Drug`(`drug_code`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `outbound` ADD CONSTRAINT `outbound_prescription_id_fkey` FOREIGN KEY (`prescription_id`) REFERENCES `prescriptions`(`prescription_id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `outbound` ADD CONSTRAINT `outbound_pharmacist_id_fkey` FOREIGN KEY (`pharmacist_id`) REFERENCES `pharmacists`(`pharmacist_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `price_history` ADD CONSTRAINT `price_history_drug_code_fkey` FOREIGN KEY (`drug_code`) REFERENCES `Drug`(`drug_code`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `price_history` ADD CONSTRAINT `price_history_pharmacist_id_fkey` FOREIGN KEY (`pharmacist_id`) REFERENCES `pharmacists`(`pharmacist_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `inventory_check` ADD CONSTRAINT `inventory_check_drug_code_fkey` FOREIGN KEY (`drug_code`) REFERENCES `Drug`(`drug_code`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `inventory_check` ADD CONSTRAINT `inventory_check_pharmacist_id_fkey` FOREIGN KEY (`pharmacist_id`) REFERENCES `pharmacists`(`pharmacist_id`) ON DELETE SET NULL ON UPDATE CASCADE;

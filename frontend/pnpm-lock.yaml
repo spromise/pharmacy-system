@@ -35,7 +35,7 @@ importers:
         version: 22.15.18
       '@vitejs/plugin-vue':
         specifier: ^5.2.3
-        version: 5.2.4(vite@6.3.5(@types/node@22.15.18))(vue@3.5.13(typescript@5.8.3))
+        version: 5.2.4(vite@6.3.5(@types/node@22.15.18)(jiti@2.4.2))(vue@3.5.13(typescript@5.8.3))
       '@vue/tsconfig':
         specifier: ^0.7.0
         version: 0.7.0(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3))
@@ -44,7 +44,7 @@ importers:
         version: 5.8.3
       vite:
         specifier: ^6.3.5
-        version: 6.3.5(@types/node@22.15.18)
+        version: 6.3.5(@types/node@22.15.18)(jiti@2.4.2)
       vue-tsc:
         specifier: ^2.2.8
         version: 2.2.10(typescript@5.8.3)
@@ -595,6 +595,10 @@ packages:
     resolution: {integrity: sha512-ZhMwEosbFJkA0YhFnNDgTM4ZxDRsS6HqTo7qsZM08fehyRYIYa0yHu5R6mgo1n/8MgaPBXiPimPD77baVFYg+A==}
     engines: {node: '>=12.13'}
 
+  jiti@2.4.2:
+    resolution: {integrity: sha512-rg9zJN+G4n2nfJl5MW3BMygZX56zKPNVEYYqq7adpmMh4Jn2QNEwhvQlFy6jPVdcod7txZtKHWnyZiA3a0zP7A==}
+    hasBin: true
+
   lodash-es@4.17.21:
     resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
 
@@ -963,9 +967,9 @@ snapshots:
 
   '@types/web-bluetooth@0.0.16': {}
 
-  '@vitejs/plugin-vue@5.2.4(vite@6.3.5(@types/node@22.15.18))(vue@3.5.13(typescript@5.8.3))':
+  '@vitejs/plugin-vue@5.2.4(vite@6.3.5(@types/node@22.15.18)(jiti@2.4.2))(vue@3.5.13(typescript@5.8.3))':
     dependencies:
-      vite: 6.3.5(@types/node@22.15.18)
+      vite: 6.3.5(@types/node@22.15.18)(jiti@2.4.2)
       vue: 3.5.13(typescript@5.8.3)
 
   '@volar/language-core@2.4.13':
@@ -1269,6 +1273,9 @@ snapshots:
 
   is-what@4.1.16: {}
 
+  jiti@2.4.2:
+    optional: true
+
   lodash-es@4.17.21: {}
 
   lodash-unified@1.0.3(@types/lodash-es@4.17.12)(lodash-es@4.17.21)(lodash@4.17.21):
@@ -1373,7 +1380,7 @@ snapshots:
 
   undici-types@6.21.0: {}
 
-  vite@6.3.5(@types/node@22.15.18):
+  vite@6.3.5(@types/node@22.15.18)(jiti@2.4.2):
     dependencies:
       esbuild: 0.25.4
       fdir: 6.4.4(picomatch@4.0.2)
@@ -1384,6 +1391,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.15.18
       fsevents: 2.3.3
+      jiti: 2.4.2
 
   vscode-uri@3.1.0: {}
 

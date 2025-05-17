@@ -11,7 +11,7 @@ import { getPatients, getPrescriptionsByPatient, updatePrescriptionDetailStatus 
 // Inventory routes
 import { getInventoryList, createInventoryRecord } from '../controllers/inventory.controller.ts';
 // inventoryCheck routes
-import { createInventoryCheck } from '../controllers/inventoryCheck.controller';
+import { createInventoryCheck, getInventoryCheckRecords } from '../controllers/inventoryCheck.controller';
 
 const router = express.Router();
 
@@ -44,5 +44,7 @@ router.post('/inventory', createInventoryRecord);
 
 // inventoryCheck routes
 router.post('/inventory-check', createInventoryCheck);
+
+router.get('/inventory-check/records', getInventoryCheckRecords)
 
 export default router;

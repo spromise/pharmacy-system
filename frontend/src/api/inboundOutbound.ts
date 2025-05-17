@@ -111,22 +111,6 @@ export const getOutboundRecordList = (params: PaginationParams) => {
 };
 
 /**
- * 获取入库记录详情
- * @param id 记录ID
- */
-export const getInboundRecordDetail = (id: number) => {
-  return request.get<InboundRecord>(`/inbound${id}`);
-};
-
-/**
- * 获取出库记录详情
- * @param id 记录ID
- */
-export const getOutboundRecordDetail = (id: number) => {
-  return request.get<OutboundRecord>(`/outbound/records/${id}`);
-};
-
-/**
  * 检查药品是否存在
  * @param drug_code 药品本位码
  */

@@ -7,8 +7,6 @@ import {
   Document, 
   Histogram,
   House,
-  Download,
-  Upload,
   Checked
 } from '@element-plus/icons-vue';
 

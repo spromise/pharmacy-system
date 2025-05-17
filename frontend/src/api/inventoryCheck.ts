@@ -70,3 +70,7 @@ export const createInventoryCheck = async (data: {
 }[]) => {
   return request.post('/inventory-check', data);
 };
+
+export const getPharmacistList = () => {
+  return request.get<{ list: Pharmacist[] }>('/pharmacists');
+};
