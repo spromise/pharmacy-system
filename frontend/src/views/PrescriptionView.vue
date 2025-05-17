@@ -1,218 +1,185 @@
 <template>
-  <div>
-    <!-- 处方表格 -->
-    <el-table :data="prescriptions" stripe style="width: 100%">
-      <el-table-column prop="id" label="处方ID" />
-      <el-table-column prop="patientVisitNumber" label="患者就诊流水号" />
-      <el-table-column prop="doctorId" label="开方医生ID" />
-      <el-table-column prop="prescriptionTime" label="处方开具时间" />
-      <el-table-column prop="status" label="状态" />
-      <el-table-column prop="clinicalDiagnosis" label="临床诊断" />
-      <el-table-column prop="medicalAdvice" label="医嘱备注" />
-      <el-table-column label="操作" width="180">
-        <template #default="scope">
-          <el-button size="small" type="primary" @click="openEditDialog(scope.row)">
-            <el-icon><Edit /></el-icon>编辑
-          </el-button>
-          <el-button size="small" type="danger" @click="deletePrescription(scope.row.id)">
-            <el-icon><Delete /></el-icon>删除
-          </el-button>
-          <el-button size="small" type="info" @click="viewPrescriptionDetails(scope.row.id)">
-            查看处方明细
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+  <div class="prescription-view">
+    <!-- 筛选栏 -->
+    <el-card class="filter-container">
+      <el-row>
+        <el-col :span="6">
+          <el-select
+            v-model="selectedPatientVisitId"
+            placeholder="请选择患者"
+            clearable
+            @change="fetchPrescriptions"
+          >
+            <el-option
+              v-for="patient in patientList"
+              :key="patient.visit_id"
+              :label="patient.name"
+              :value="patient.visit_id"
+            />
+          </el-select>
+        </el-col>
+      </el-row>
+    </el-card>
 
-    <!-- 分页 -->
-    <el-pagination
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-      :current-page="currentPage"
-      :page-sizes="[10, 20, 30, 50]"
-      :page-size="pageSize"
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="total"
-      style="margin-top: 20px"
-    />
+    <!-- 处方列表 -->
+    <el-card>
+      <h2 style="margin-bottom: 20px">处方详情 - {{ selectedPatientName }}</h2>
+      <el-table
+        :data="groupedPrescriptions.flatMap(group => group.items)"
+        stripe
+        border
+        style="width: 100%"
+      >
+        <!-- 处方号合并列 -->
+        <el-table-column
+          :rowspan="getRowSpan(0)"
+          label="处方号"
+          width="80"
+        >
+          <template #default>
+            <el-tag type="info" size="medium">
+              {{ groupedPrescriptions[0].prescription_id }}
+            </el-tag>
+          </template>
+        </el-table-column>
 
-    <!-- 新增/编辑处方对话框 -->
-    <el-dialog :visible.sync="dialogVisible" title="处方信息">
-      <template #content>
-        <el-form :model="formData" ref="formRef" label-width="120px">
-          <el-form-item label="患者就诊流水号" prop="patientVisitNumber">
-            <el-input v-model="formData.patientVisitNumber" placeholder="请输入患者就诊流水号" />
-          </el-form-item>
-          <el-form-item label="开方医生ID" prop="doctorId">
-            <el-input v-model="formData.doctorId" placeholder="请输入开方医生ID" />
-          </el-form-item>
-          <el-form-item label="临床诊断" prop="clinicalDiagnosis">
-            <el-input v-model="formData.clinicalDiagnosis" placeholder="请输入临床诊断" />
-          </el-form-item>
-          <el-form-item label="医嘱备注" prop="medicalAdvice">
-            <el-input v-model="formData.medicalAdvice" placeholder="请输入医嘱备注" />
-          </el-form-item>
-        </el-form>
-      </template>
-      <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="savePrescription">确定</el-button>
-      </template>
-    </el-dialog>
+        <!-- 其他列正常显示 -->
+        <el-table-column label="药品名" prop="drug_name" width="150" />
+        <el-table-column label="药品数量" prop="quantity" width="90"/>
+        <el-table-column label="总价" prop="total_price" width="90" />
+        <el-table-column label="开立医生" prop="doctor_name" width="120" />
+        <el-table-column label="使用建议" prop="usage_instruction" />
 
-    <!-- 处方明细对话框 -->
-    <el-dialog :visible.sync="prescriptionDetailsDialogVisible" title="处方明细">
-      <el-table :data="prescriptionDetails" stripe style="width: 100%">
-        <el-table-column prop="medicineStandardCode" label="药品本位码" />
-        <el-table-column prop="medicineName" label="药品名称" />
-        <el-table-column prop="unitPrice" label="单价" />
-        <el-table-column prop="quantity" label="数量" />
-        <el-table-column prop="usageDosage" label="用法用量" />
+        <!-- 取药状态按钮列 -->
+        <el-table-column label="取药状态" width="100">
+          <template #default="{ row }">
+            <el-button
+              :type="row.pickupStatus === '已取药'? 'green' : 'blue'"
+              :class="row.pickupStatus === '已取药'? 'green-bg' : 'blue-bg'"
+              size="mini"
+              @click="toggleStatus(row)"
+            >
+              {{ row.pickupStatus }}
+            </el-button>
+          </template>
+        </el-table-column>
       </el-table>
-      <template #footer>
-        <el-button @click="prescriptionDetailsDialogVisible = false">关闭</el-button>
-      </template>
-    </el-dialog>
+    </el-card>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
-import { Edit, Delete } from '@element-plus/icons-vue';
-import {
-  getPrescriptionList,
-  createPrescription,
-  updatePrescription,
-  deletePrescription as deleteApi,
-  getPrescriptionDetailList
-} from '@/api/prescription';
-import { ElMessage, ElMessageBox } from 'element-plus';
+<script setup>
+import { ref, onMounted, watch, computed } from 'vue';
+import { getPatients, getPrescriptionsByPatient, updatePickupStatusApi } from '@/api/prescription';
+import { ElMessage } from 'element-plus';
 
-const prescriptions = ref<any[]>([]);
-const currentPage = ref(1);
-const pageSize = ref(10);
-const total = ref(0);
-const dialogVisible = ref(false);
-const formData = reactive({
-  id: 0,
-  patientVisitNumber: '',
-  doctorId: '',
-  clinicalDiagnosis: '',
-  medicalAdvice: ''
+// 状态管理
+const patientList = ref([]);
+const selectedPatientVisitId = ref('');
+const selectedPatientName = ref('');
+const prescriptionList = ref([]);
+
+// 分组数据
+const groupedPrescriptions = computed(() => {
+  const groups = {};
+  prescriptionList.value.forEach(item => {
+    if (!groups[item.prescription_id]) {
+      groups[item.prescription_id] = {
+        prescription_id: item.prescription_id,
+        doctor_name: item.doctor_name,
+        items: []
+      };
+    }
+    groups[item.prescription_id].items.push(item);
+  });
+  return Object.values(groups);
 });
-const formRef = ref(null);
-const isEdit = ref(false);
-const prescriptionDetailsDialogVisible = ref(false);
-const prescriptionDetails = ref<any[]>([]);
 
-// 获取处方列表
-const fetchPrescriptions = async () => {
+// 计算行合并
+const getRowSpan = (index) => {
+  return groupedPrescriptions.value.reduce((sum, group) => sum + group.items.length, 0);
+};
+
+// 生命周期
+onMounted(async () => {
+  await fetchPatients();
+});
+
+// 获取患者列表
+const fetchPatients = async () => {
   try {
-    const response = await getPrescriptionList({
-      page: currentPage.value,
-      pageSize: pageSize.value
-    });
-    prescriptions.value = response.data;
-    total.value = response.total;
+    const res = await getPatients();
+    patientList.value = res.data;
+    if (patientList.value.length > 0) {
+      selectedPatientVisitId.value = patientList.value[0].visit_id;
+    }
   } catch (error) {
-    console.error('Error fetching prescriptions:', error);
-    ElMessage.error('获取处方列表失败');
+    ElMessage.error('获取患者列表失败');
   }
 };
 
-// 分页相关方法
-const handleSizeChange = (newSize: number) => {
-  pageSize.value = newSize;
-  fetchPrescriptions();
-};
+// 监听患者选择
+watch(selectedPatientVisitId, async (newValue) => {
+  if (newValue) {
+    const patient = patientList.value.find(p => p.visit_id === newValue);
+    selectedPatientName.value = patient?.name || '';
+    await fetchPrescriptionsByPatient(newValue);
+  }
+});
 
-const handleCurrentChange = (newPage: number) => {
-  currentPage.value = newPage;
-  fetchPrescriptions();
-};
-
-// 打开新增对话框
-const openCreateDialog = () => {
-  isEdit.value = false;
-  // 重置表单
-  Object.assign(formData, {
-    id: 0,
-    patientVisitNumber: '',
-    doctorId: '',
-    clinicalDiagnosis: '',
-    medicalAdvice: ''
-  });
-  dialogVisible.value = true;
-};
-
-// 打开编辑对话框
-const openEditDialog = (row: any) => {
-  isEdit.value = true;
-  Object.assign(formData, { ...row });
-  dialogVisible.value = true;
-};
-
-// 保存处方信息
-const savePrescription = async () => {
+// 获取处方
+const fetchPrescriptionsByPatient = async (visitId) => {
   try {
-    if (!formData.patientVisitNumber || !formData.doctorId) {
-      ElMessage.warning('请输入患者就诊流水号和开方医生ID');
-      return;
-    }
-
-    if (isEdit.value) {
-      // 更新处方
-      await updatePrescription(formData.id, formData);
-      ElMessage.success('更新成功');
-    } else {
-      // 创建处方
-      await createPrescription(formData);
-      ElMessage.success('创建成功');
-    }
-
-    dialogVisible.value = false;
-    fetchPrescriptions();
+    const res = await getPrescriptionsByPatient(visitId);
+    prescriptionList.value = res.data.map(item => ({
+     ...item,
+      oldStatus: item.pickupStatus // 保存原始状态用于回滚
+    }));
   } catch (error) {
-    console.error('Error saving prescription:', error);
-    ElMessage.error('保存失败');
+    ElMessage.error('获取处方失败：' + error.message);
   }
 };
 
-// 删除处方
-const deletePrescription = (id: number) => {
-  ElMessageBox.confirm(
-    '确定要删除此处方吗？',
-    '提示',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  ).then(async () => {
-    try {
-      await deleteApi(id);
-      fetchPrescriptions();
-      ElMessage.success('删除成功');
-    } catch (error) {
-      console.error('Error deleting prescription:', error);
-      ElMessage.error('删除失败');
-    }
-  }).catch(() => {
-    // 取消操作
-  });
-};
+// 切换状态
+// 修改状态切换函数，确保传递正确的 drugCode
+const toggleStatus = async (row) => {
+  const newStatus = row.pickupStatus === '已取药' ? '未取药' : '已取药';
+  
+  // 检查 row.drug_code 是否存在
+  if (!row.drug_code) {
+    ElMessage.error('药品编码缺失，无法更新状态');
+    return;
+  }
 
-// 查看处方明细
-const viewPrescriptionDetails = async (prescriptionId: number) => {
   try {
-    const response = await getPrescriptionDetailList(prescriptionId);
-    prescriptionDetails.value = response.data;
-    prescriptionDetailsDialogVisible.value = true;
+    // 确保此处传递 row.drug_code 而非 undefined
+    await updatePickupStatusApi(row.prescription_id, row.drug_code, newStatus);
+    row.pickupStatus = newStatus;
+    ElMessage.success('状态更新成功');
   } catch (error) {
-    console.error('Error fetching prescription details:', error);
-    ElMessage.error('获取处方明细失败');
+    ElMessage.error('状态更新失败：' + error.message);
+    row.pickupStatus = row.oldStatus; // 回滚状态
   }
 };
-
-onMounted(fetchPrescriptions);
 </script>
+
+<style scoped>
+.filter-container {
+  margin-bottom: 20px;
+}
+
+/* 自定义状态颜色 */
+.green-bg {
+  background-color: #409eff1a!important; /* 绿色背景 */
+  color: white;
+}
+
+.blue-bg {
+  background-color: #409eff!important; /* 蓝色背景 */
+  color: white;
+}
+
+.el-table.is-grouped th:first-child {
+  vertical-align: middle!important;
+}
+</style>

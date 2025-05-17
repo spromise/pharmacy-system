@@ -24,13 +24,12 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response: AxiosResponse) => {
     const res = response.data;
-    
-    // 统一判断业务状态码（假设后端约定 code=200 为成功）
-    if (res.code !== 200) {
-      // 使用 res.message 作为错误信息
-      return Promise.reject(new Error(res.message || '服务器返回错误'));
+    // 假设只要响应状态码是 200 就认为请求成功
+    if (response.status === 200) {
+      return res;
     }
-    return res;
+    // 若状态码不是 200，则抛出错误
+    return Promise.reject(new Error('服务器返回错误'));
   },
   (error: AxiosError) => {
     // 处理网络错误（如超时、断网等）

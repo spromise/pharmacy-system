@@ -53,7 +53,6 @@ model Prescription {
   patient_visit_id    String // 关联患者就诊流水号
   doctor_id           Int // 开方医生ID
   create_time         DateTime             @default(now()) // 处方开具时间
-  status              PrescriptionStatus   @default(有效) // 状态（有效/已作废/已审核）
   diagnosis           String?              @db.VarChar(500) // 临床诊断，增加长度
   remarks             String?              @db.Text // 医嘱备注
   total_amount        Float                @default(0.0) // 处方总金额（快照）
@@ -68,10 +67,10 @@ model Prescription {
   @@map("prescriptions")
 }
 
-enum PrescriptionStatus {
-  有效
-  已作废
-  已审核
+// 新增取药状态枚举
+enum MedicationPickupStatus {
+  已取药
+  未取药
 }
 
 // ---------------------------
@@ -80,12 +79,14 @@ enum PrescriptionStatus {
 model PrescriptionDetail {
   prescription_id   Int // 处方ID
   drug_code         String // 药品本位码
-  drug_name         String       @db.VarChar(100) // 冗余存储药品名称（快照）
+  drug_name         String                 @db.VarChar(100) // 冗余存储药品名称（快照）
   unit_price        Float // 药品单价（价格快照）
-  quantity          Int          @default(1) // 数量（如2盒/30片）
-  usage_instruction String       @db.VarChar(200) // 用法用量（如“每日3次，每次1片”）
-  prescription      Prescription @relation(fields: [prescription_id], references: [prescription_id], onDelete: Cascade, onUpdate: Cascade)
-  drug              Drug         @relation(fields: [drug_code], references: [drug_code], onDelete: Restrict, onUpdate: Cascade)
+  quantity          Int                    @default(1) // 数量（如2盒/30片）
+  usage_instruction String                 @db.VarChar(200) // 用法用量（如“每日3次，每次1片”）
+  pickupStatus      MedicationPickupStatus @default(未取药) // 新增取药状态字段
+
+  prescription      Prescription           @relation(fields: [prescription_id], references: [prescription_id], onDelete: Cascade, onUpdate: Cascade)
+  drug              Drug                   @relation(fields: [drug_code], references: [drug_code], onDelete: Restrict, onUpdate: Cascade)
 
   // 复合主键与关联
   @@id([prescription_id, drug_code])
@@ -110,6 +111,7 @@ model Drug {
   outbounds           Outbound[]
   priceHistories      PriceHistory[]
   prescriptionDetails PrescriptionDetail[]
+  InventoryCheck      InventoryCheck[]
 }
 
 // ---------------------------
@@ -120,7 +122,6 @@ model Inventory {
   drug_code          String    @db.Char(14) // 关联药品本位码
   batch_number       String    @db.VarChar(50) // 批次号（格式：YYYYMMDD-001）
   stock_quantity     Int       @default(0) // 当前库存量
-  expiration_date    DateTime // 有效期
   alert_threshold    Int       @default(50) // 库存预警阈值
   last_inbound_time  DateTime? // 最后入库时间
   last_outbound_time DateTime? // 最后出库时间
@@ -132,18 +133,36 @@ model Inventory {
 }
 
 // ---------------------------
+// 新增：药师表
+// ---------------------------
+model Pharmacist {
+  pharmacist_id Int    @id @default(autoincrement()) // 药师ID（自增主键）
+  name          String @db.VarChar(10) // 药师姓名
+
+  // 关联关系
+  inbounds        Inbound[] // 入库操作
+  outbounds       Outbound[] // 出库操作
+  priceHistories  PriceHistory[] // 调价操作
+  inventoryChecks InventoryCheck[] // 盘点操作
+
+  @@map("pharmacists")
+}
+
+// ---------------------------
 // 入库管理表
 // ---------------------------
 model Inbound {
-  inbound_id   Int      @id @default(autoincrement())
-  drug_code    String   @db.Char(14) // 关联药品本位码
-  batch_number String   @db.VarChar(50) // 批次号
-  quantity     Int // 入库数量
-  inbound_time DateTime @default(now()) // 入库时间
-  operator_id  Int? // 操作员ID
+  inbound_id      Int      @id @default(autoincrement())
+  drug_code       String   @db.Char(14) // 关联药品本位码
+  batch_number    String   @db.VarChar(50) // 批次号
+  quantity        Int // 入库数量
+  inbound_time    DateTime @default(now()) // 入库时间
+  expiration_date DateTime // 有效期
+  pharmacist_id   Int? // 操作药师ID
 
   // 外键关联
-  drug Drug @relation(fields: [drug_code], references: [drug_code], onDelete: Restrict, onUpdate: Cascade)
+  drug       Drug        @relation(fields: [drug_code], references: [drug_code], onDelete: Restrict, onUpdate: Cascade)
+  pharmacist Pharmacist? @relation(fields: [pharmacist_id], references: [pharmacist_id], onDelete: SetNull, onUpdate: Cascade)
 
   @@map("inbound")
 }
@@ -159,10 +178,12 @@ model Outbound {
   prescription_id Int? // 关联处方（若为处方药）
   outbound_type   String   @db.VarChar(20) // 出库类型（销售/调拨/退货）
   outbound_time   DateTime @default(now()) // 出库时间
+  pharmacist_id   Int? // 操作药师ID
 
   // 外键关联
   drug         Drug          @relation(fields: [drug_code], references: [drug_code], onDelete: Restrict, onUpdate: Cascade)
   prescription Prescription? @relation(fields: [prescription_id], references: [prescription_id], onDelete: SetNull, onUpdate: Cascade)
+  pharmacist   Pharmacist?   @relation(fields: [pharmacist_id], references: [pharmacist_id], onDelete: SetNull, onUpdate: Cascade)
 
   @@map("outbound")
 }
@@ -176,10 +197,30 @@ model PriceHistory {
   old_price      Float? // 原价格
   new_price      Float // 新价格
   effective_date DateTime // 生效日期
-  operator_id    Int? // 操作员ID
+  pharmacist_id  Int? // 操作药师ID
 
   // 外键关联
-  drug Drug @relation(fields: [drug_code], references: [drug_code], onDelete: Restrict, onUpdate: Cascade)
+  drug       Drug        @relation(fields: [drug_code], references: [drug_code], onDelete: Restrict, onUpdate: Cascade)
+  pharmacist Pharmacist? @relation(fields: [pharmacist_id], references: [pharmacist_id], onDelete: SetNull, onUpdate: Cascade)
 
   @@map("price_history")
+}
+
+// ---------------------------
+// 盘点记录表
+// ---------------------------
+model InventoryCheck {
+  check_id           Int      @id @default(autoincrement())
+  drug_code          String   @db.Char(14) // 关联药品本位码
+  physical_quantity  Int // 实际盘点数量
+  system_quantity    Int // 系统记录数量
+  discrepancy_reason String?  @db.Text // 差异原因
+  check_time         DateTime @default(now()) // 盘点时间
+  pharmacist_id      Int? // 操作药师ID
+
+  // 外键关联
+  drug       Drug        @relation(fields: [drug_code], references: [drug_code], onDelete: Restrict, onUpdate: Cascade)
+  pharmacist Pharmacist? @relation(fields: [pharmacist_id], references: [pharmacist_id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@map("inventory_check")
 }

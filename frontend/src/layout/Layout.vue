@@ -87,20 +87,6 @@ const activeMenu = computed(() => {
   }
   return route.path;
 });
-
-// 获取当前页面标题
-const getCurrentPageTitle = computed(() => {
-  const matchedRoute = route.matched.find(r => r.meta.title);
-  return matchedRoute?.meta.title || '未知页面';
-});
-
-const handleOpen = (key: string, keyPath: string[]) => {
-  console.log(key, keyPath);
-};
-
-const handleClose = (key: string, keyPath: string[]) => {
-  console.log(key, keyPath);
-};
 </script>
 
 <style scoped>

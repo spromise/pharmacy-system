@@ -8,7 +8,8 @@ import {
   Histogram,
   House,
   Download,
-  Upload
+  Upload,
+  Checked
 } from '@element-plus/icons-vue';
 
 const routes: RouteRecordRaw[] = [
@@ -37,22 +38,16 @@ const routes: RouteRecordRaw[] = [
             meta: { title: '库存查询', icon: Van }
           },
           {
-            path: 'inbound',
-            name: 'InventoryInbound',
-            component: () => import('@/views/InboundView.vue'),
-            meta: { title: '入库', icon: Download }
-          },
-          {
-            path: 'outbound',
-            name: 'InventoryOutbound',
-            component: () => import('@/views/OutboundView.vue'),
-            meta: { title: '出库', icon: Upload }
-          },
-          {
             path: 'records',
             name: 'InventoryRecords',
-            component: () => import('@/views/RecordQueryView.vue'),
-            meta: { title: '记录查询', icon: Memo }
+            component: () => import('@/views/InboundOutboundView.vue'),
+            meta: { title: '出入库管理', icon: Memo }
+          },
+          {
+            path: 'check',
+            name: 'InventoryCheck',
+            component: () => import('@/views/InventoryCheckView.vue'),
+            meta: { title: '库存盘点', icon: Checked }
           }
         ]
       },
